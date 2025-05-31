@@ -288,7 +288,7 @@ def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_B
     FILTER_MONTHLY_VAR_COL : Column to calculate monthly variance
     PARENT_DF : Parent DataFrame to concatenate with the monthly stock data
     """
-    master_df = load_data('kunmings.db')
+    master_df = load_data('kunmings.pkl')
     filter_data=master_df[(master_df['Month'] == FILTER_MONTH) & \
                                       (master_df['Year'] == FILTE_YEAR) & \
                                         (master_df['Shape key'] == FILTER_SHAPE) &\
