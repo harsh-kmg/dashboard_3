@@ -300,11 +300,17 @@ def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_B
     master_df = load_data('kunmings.pkl')
     if (FILTE_YEAR !=None) or (FILTE_YEAR !="None"):
         FILTE_YEAR = int(FILTE_YEAR)
-    filter_data=master_df[(master_df['Month'] == FILTER_MONTH) | \
-                                      (master_df['Year'] == FILTE_YEAR) | \
+    else:
+        filter_data=master_df[(master_df['Month'] == FILTER_MONTH) | \
+                                      
                                         (master_df['Shape key'] == FILTER_SHAPE) |\
                                         (master_df['Color Key'] == FILTER_COLOR) |\
                                         (master_df['Buckets'] == FILTER_BUCKET)]
+    # filter_data=master_df[(master_df['Month'] == FILTER_MONTH) | \
+    #                                   (master_df['Year'] == FILTE_YEAR) | \
+    #                                     (master_df['Shape key'] == FILTER_SHAPE) |\
+    #                                     (master_df['Color Key'] == FILTER_COLOR) |\
+    #                                     (master_df['Buckets'] == FILTER_BUCKET)]
     try:
         max_buying_price = filter_data['Max Buying Price'].max()
         current_avg_cost = sum(.9*((filter_data['Max Buying Price'] * filter_data['Weight'])/(filter_data['Weight'].sum() if filter_data['Weight'].sum() != 0 else 1)))
