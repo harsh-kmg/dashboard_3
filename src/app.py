@@ -380,16 +380,28 @@ def main():
             # Display summary metrics
             st.subheader("📊 Summary Metrics")
             mbp,cac,mom_var,mom_perc,qoq_perc = st.columns(5)
-            with mbp:
-                st.metric("Max Buying Price", f"${max_buying_price:,.2f}")
-            with cac:
-                st.metric("Current Avg Cost", f"${current_avg_cost:,.2f}")
-            with mom_var:
-                st.metric("MOM Variance ", f"{MOM_Variance:,.2f}%")
-            with mom_perc:
-                st.metric("MOM Percent Change", f"{MOM_Percent_Change:.2f}%")
-            with qoq_perc:
-                st.metric("MOM QoQ Percent Change", f"{MOM_QoQ_Percent_Change:.2f}%")
+            if type(max_buying_price)!= str:
+                with mbp:
+                    st.metric("Max Buying Price", f"${max_buying_price:,.2f}")
+                with cac:
+                    st.metric("Current Avg Cost", f"${current_avg_cost:,.2f}")
+                with mom_var:
+                    st.metric("MOM Variance ", f"{MOM_Variance:,.2f}%")
+                with mom_perc:
+                    st.metric("MOM Percent Change", f"{MOM_Percent_Change:.2f}%")
+                with qoq_perc:
+                    st.metric("MOM QoQ Percent Change", f"{MOM_QoQ_Percent_Change:.2f}%")
+            else:
+                with mbp:
+                    st.metric("Max Buying Price", f"No data preseent for this filter")
+                with cac:
+                    st.metric("Current Avg Cost", f"No data preseent for this filter")
+                with mom_var:
+                    st.metric("MOM Variance ", f"No data preseent for this filter")
+                with mom_perc:
+                    st.metric("MOM Percent Change", f"No data preseent for this filter")
+                with qoq_perc:
+                    st.metric("MOM QoQ Percent Change", f"No data preseent for this filter")
             st.subheader("📊 Data Table")
             st.dataframe(
                 filter_data,
