@@ -105,7 +105,10 @@ def populate_max_qty(df,MONTHLY_STOCK_DATA):
             value = None
         else:
             col_name = f"{Shape}_{Color}"
-            value = df[(df['Months'] == join) & (df['Buckets'] == Bucket)][col_name].values.tolist()
+            if col_name in df.columns.tolist():
+                value = df[(df['Months'] == join) & (df['Buckets'] == Bucket)][col_name].values.tolist()
+            else:
+                value = 0
         _MAX_QTY_.append(value)
     MONTHLY_STOCK_DATA['Max Qty'] = _MAX_QTY_
     MONTHLY_STOCK_DATA['Max Qty']=MONTHLY_STOCK_DATA['Max Qty'].map(lambda x:x[0] if isinstance(x, list) and len(x) > 0 else 0)
@@ -132,7 +135,10 @@ def populate_min_qty(df,MONTHLY_STOCK_DATA):
             value = None
         else:
             col_name = f"{Shape}_{Color}"
-            value = df[(df['Months'] == join) & (df['Buckets'] == Bucket)][col_name].values.tolist()
+            if col_name in df.columns.tolist():
+                value = df[(df['Months'] == join) & (df['Buckets'] == Bucket)][col_name].values.tolist()
+            else:
+                value = 0
         _MIN_QTY_.append(value)
     MONTHLY_STOCK_DATA['Min Qty'] = _MIN_QTY_
     MONTHLY_STOCK_DATA['Min Qty']=MONTHLY_STOCK_DATA['Min Qty'].map(lambda x:x[0] if isinstance(x, list) and len(x) > 0 else 0)
@@ -159,7 +165,10 @@ def populate_buying_prices(df,MONTHLY_STOCK_DATA):
             value = None
         else:
             col_name = f"{Shape}_{Color}"
-            value = df[(df['Months'] == join) & (df['Buckets'] == Bucket)][col_name].values.tolist()
+            if col_name in df.columns.tolist():
+                value = df[(df['Months'] == join) & (df['Buckets'] == Bucket)][col_name].values.tolist()
+            else:
+                value = 0
         _BUYING_PRICE_.append(value)
     MONTHLY_STOCK_DATA['Max Buying Price'] = _BUYING_PRICE_
     MONTHLY_STOCK_DATA['Max Buying Price']=MONTHLY_STOCK_DATA['Max Buying Price'].map(lambda x:x[0] if isinstance(x, list) and len(x) > 0 else 0)
