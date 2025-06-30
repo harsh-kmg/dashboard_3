@@ -393,15 +393,16 @@ def main():
                     st.metric("MOM QoQ Percent Change", f"{MOM_QoQ_Percent_Change:.2f}%")
             else:
                 with mbp:
-                    st.metric("Max Buying Price", f"No data preseent for this filter")
+                    st.metric("Max Buying Price", f"0")
                 with cac:
-                    st.metric("Current Avg Cost", f"No data preseent for this filter")
+                    st.metric("Current Avg Cost", f"0")
                 with mom_var:
-                    st.metric("MOM Variance ", f"No data preseent for this filter")
+                    st.metric("MOM Variance ", f"0")
                 with mom_perc:
-                    st.metric("MOM Percent Change", f"No data preseent for this filter")
+                    st.metric("MOM Percent Change", f"0")
                 with qoq_perc:
-                    st.metric("MOM QoQ Percent Change", f"No data preseent for this filter")
+                    st.metric("MOM QoQ Percent Change", f"0")
+                st.subheader("No Data Present for This Filter")
             st.subheader("📊 Data Table")
             st.dataframe(
                 filter_data,
