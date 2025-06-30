@@ -298,10 +298,10 @@ def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_B
     PARENT_DF : Parent DataFrame to concatenate with the monthly stock data
     """
     master_df = load_data('kunmings.pkl')
-    filter_data=master_df[(master_df['Month'] == FILTER_MONTH) or \
-                                      (master_df['Year'] == FILTE_YEAR) or \
-                                        (master_df['Shape key'] == FILTER_SHAPE) or\
-                                        (master_df['Color Key'] == FILTER_COLOR) or\
+    filter_data=master_df[(master_df['Month'] == FILTER_MONTH) | \
+                                      (master_df['Year'] == FILTE_YEAR) | \
+                                        (master_df['Shape key'] == FILTER_SHAPE) |\
+                                        (master_df['Color Key'] == FILTER_COLOR) |\
                                         (master_df['Buckets'] == FILTER_BUCKET)]
     try:
         max_buying_price = filter_data['Max Buying Price'].max()
