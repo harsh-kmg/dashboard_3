@@ -5,20 +5,7 @@ from datetime import datetime
 from io import BytesIO
 import streamlit as st
 from utility import *
-# def load_data(file):
-#     file_type = file.split('.')[-1]
-#     if file_type == 'csv':
-#         return pd.read_csv(file)
-#     elif file_type == 'xlsx':
-#         df=pd.read_excel(file,sheet_name=None)
-#         df_dict = {}
-#         for sheet_name, df_ in df.items():
-#             df_dict[sheet_name] = df_
-#         return df_dict
-    
-#     elif file_type == 'pkl':
-#         df = pd.read_pickle(f'src/{file}', cnx)
-#         return df
+
 def load_data(file):
     # Handle different input types
     if isinstance(file, str):
@@ -27,8 +14,15 @@ def load_data(file):
         if file_type == 'csv':
             return pd.read_csv(file)
         elif file_type == 'pkl':
-            df = pd.read_pickle(f"src/{file}")
+            df = pd.read_pickle(f"{file}")
             return df
+        elif file_type in ['xlsx', 'xls']:
+            df = pd.read_excel(file, sheet_name=None)
+            df_dict = {}
+            for sheet_name, df_ in df.items():
+                df_dict[sheet_name] = df_
+            st.info(df.keys())
+            return df_dict
     else:
         # File object from Streamlit uploader
         if hasattr(file, 'name'):
@@ -44,10 +38,12 @@ def load_data(file):
             st.info(df.keys())
             return df_dict
         elif file_type == 'pkl':
-            df = pd.read_pickle(f"src/{file}")
+            df = pd.read_pickle(f"{file}")
             return df
         elif file_type == 'csv':
             return pd.read_csv(file)
+
+
 def save_data(df):
     df.to_pickle('src/kunmings.pkl')
     
@@ -298,8 +294,9 @@ def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_B
     PARENT_DF : Parent DataFrame to concatenate with the monthly stock data
     """
     master_df = load_data('kunmings.pkl')
-    if (type(FILTE_YEAR)==str) & (str(FILTE_YEAR).isnumeric()):
+    if (type(FILTE_YEAR)==str) & (FILTE_YEAR.isnumeric()):
         FILTE_YEAR = int(FILTE_YEAR)
+    #     FILTE_YEAR = int(FILTE_YEAR)
     #     filter_data=master_df[(master_df['Month'] == FILTER_MONTH) | \
     #                                   (master_df['Year'] == FILTE_YEAR) | \
     #                                     (master_df['Shape key'] == FILTER_SHAPE) |\
@@ -337,7 +334,6 @@ def get_final_data(file,PARENT_DF = 'kunmings.pkl'):
     master_df = pd.concat([df, parent_df], ignore_index=True,axis=0)
     save_data(master_df)
     return master_df
-
 def main():
     st.set_page_config(page_title="Yellow Diamond Dashboard", layout="wide")
     st.title("Yellow Diamond Dashboard")
