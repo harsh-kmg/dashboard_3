@@ -303,19 +303,21 @@ def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_B
                                         (master_df['Shape key'] == FILTER_SHAPE) &\
                                         (master_df['Color Key'] == FILTER_COLOR) &\
                                         (master_df['Buckets'] == FILTER_BUCKET)]
-    max_buying_price = filter_data['Max Buying Price'].max()
-    current_avg_cost = sum(.9*((filter_data['Max Buying Price'] * filter_data['Weight'])/(filter_data['Weight'].sum() if filter_data['Weight'].sum() != 0 else 1)))
-    avg_value = master_df[FILTER_MONTHLY_VAR_COL].mean()
-    MOM_Variance = (sum((filter_data[FILTER_MONTHLY_VAR_COL] - avg_value)/ avg_value )/filter_data.shape[0]) * 100
-    var_analysis = monthly_variance(master_df,FILTER_MONTHLY_VAR_COL)
-    MOM_Percent_Change = var_analysis[(var_analysis['Month'] == FILTER_MONTH) & (var_analysis['Year'] == FILTE_YEAR)]['Monthly_change'].values.tolist()[0]
-    MOM_QoQ_Percent_Change = var_analysis[(var_analysis['Month'] == FILTER_MONTH) & (var_analysis['Year'] == FILTE_YEAR)]['qaurter_change'].values.tolist()[0]
-    if MOM_Percent_Change == np.inf:
-        MOM_Percent_Change = 0
-    if MOM_QoQ_Percent_Change == np.inf:
-        MOM_QoQ_Percent_Change = 0
-    return [filter_data,int(max_buying_price),int(current_avg_cost), int(MOM_Variance), MOM_Percent_Change, MOM_QoQ_Percent_Change]
-
+    try:
+        max_buying_price = filter_data['Max Buying Price'].max()
+        current_avg_cost = sum(.9*((filter_data['Max Buying Price'] * filter_data['Weight'])/(filter_data['Weight'].sum() if filter_data['Weight'].sum() != 0 else 1)))
+        avg_value = master_df[FILTER_MONTHLY_VAR_COL].mean()
+        MOM_Variance = (sum((filter_data[FILTER_MONTHLY_VAR_COL] - avg_value)/ avg_value )/filter_data.shape[0]) * 100
+        var_analysis = monthly_variance(master_df,FILTER_MONTHLY_VAR_COL)
+        MOM_Percent_Change = var_analysis[(var_analysis['Month'] == FILTER_MONTH) & (var_analysis['Year'] == FILTE_YEAR)]['Monthly_change'].values.tolist()[0]
+        MOM_QoQ_Percent_Change = var_analysis[(var_analysis['Month'] == FILTER_MONTH) & (var_analysis['Year'] == FILTE_YEAR)]['qaurter_change'].values.tolist()[0]
+        if MOM_Percent_Change == np.inf:
+            MOM_Percent_Change = 0
+        if MOM_QoQ_Percent_Change == np.inf:
+            MOM_QoQ_Percent_Change = 0
+        return [filter_data,int(max_buying_price),int(current_avg_cost), int(MOM_Variance), MOM_Percent_Change, MOM_QoQ_Percent_Change]
+    except:
+        return [pd.DataFrame(columns=master_df.columns.tolist()),f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter"]
 def get_final_data(file,PARENT_DF = 'kunmings.pkl'):
     df = poplutate_monthly_stock_sheet(file)
     parent_df = load_data(PARENT_DF)
