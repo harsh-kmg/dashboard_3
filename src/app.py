@@ -298,6 +298,8 @@ def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_B
     PARENT_DF : Parent DataFrame to concatenate with the monthly stock data
     """
     master_df = load_data('kunmings.pkl')
+    if (FILTE_YEAR !=None) or (FILTE_YEAR !="None"):
+        FILTE_YEAR = int(FILTE_YEAR)
     filter_data=master_df[(master_df['Month'] == FILTER_MONTH) | \
                                       (master_df['Year'] == FILTE_YEAR) | \
                                         (master_df['Shape key'] == FILTER_SHAPE) |\
@@ -372,7 +374,7 @@ def main():
         filtered_df = st.session_state.master_df.copy()
         if ((selected_month != "None") or (selected_year != "None") or (selected_shape != "None") or (selected_color != "None") or (selected_bucket != "None")) & (selected_variance_column != "None"):
             filter_data,max_buying_price,current_avg_cost,MOM_Variance,MOM_Percent_Change,MOM_QoQ_Percent_Change = get_filtered_data(selected_month,\
-                                                                                                                        int(selected_year),\
+                                                                                                                        selected_year,\
                                                                                                                         selected_shape,\
                                                                                                                         selected_color,\
                                                                                                                         selected_bucket,\
