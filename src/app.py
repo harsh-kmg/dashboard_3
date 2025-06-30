@@ -14,7 +14,7 @@ def load_data(file):
         if file_type == 'csv':
             return pd.read_csv(file)
         elif file_type == 'pkl':
-            df = pd.read_pickle(f"{file}")
+            df = pd.read_pickle(f"src/{file}")
             return df
         elif file_type in ['xlsx', 'xls']:
             df = pd.read_excel(file, sheet_name=None)
@@ -38,7 +38,7 @@ def load_data(file):
             st.info(df.keys())
             return df_dict
         elif file_type == 'pkl':
-            df = pd.read_pickle(f"{file}")
+            df = pd.read_pickle(f"src/{file}")
             return df
         elif file_type == 'csv':
             return pd.read_csv(file)
