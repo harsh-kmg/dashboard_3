@@ -298,7 +298,7 @@ def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_B
     PARENT_DF : Parent DataFrame to concatenate with the monthly stock data
     """
     master_df = load_data('kunmings.pkl')
-    if (FILTE_YEAR !=None) or (FILTE_YEAR !="None"):
+    if (FILTE_YEAR !="None"):
         FILTE_YEAR = int(FILTE_YEAR)
         filter_data=master_df[(master_df['Month'] == FILTER_MONTH) | \
                                       (master_df['Year'] == FILTE_YEAR) | \
