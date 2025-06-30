@@ -383,7 +383,7 @@ def main():
             selected_variance_column = st.selectbox("Select Variance Column", variance_columns)
         # Apply filters
         filtered_df = st.session_state.master_df.copy()
-        if ((selected_month != "None") | (selected_year != "None") | (selected_shape != "None") | (selected_color != "None") | (selected_bucket != "None")) & (selected_variance_column != "None"):
+        if ((selected_month != "None") & (selected_year != "None") & (selected_shape != "None") & (selected_color != "None") & (selected_bucket != "None")) & (selected_variance_column != "None"):
             filter_data,max_buying_price,current_avg_cost,MOM_Variance,MOM_Percent_Change,MOM_QoQ_Percent_Change = get_filtered_data(selected_month,\
                                                                                                                         selected_year,\
                                                                                                                         selected_shape,\
