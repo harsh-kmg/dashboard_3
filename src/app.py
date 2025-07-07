@@ -490,8 +490,8 @@ def main():
                     
                 st.subheader("No Data Present for This Filter")
             st.subheader("GAP ANALYSIS")
-            gap = st.columns(1)
-            with gap:
+            GAP = st.columns(1)
+            with GAP:
                 st.metric("Gap Analysis",gap_output)
             
             st.subheader("📊 Data Table")
