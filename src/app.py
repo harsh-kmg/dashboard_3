@@ -449,11 +449,11 @@ def main():
             buckets = ["None"]+list(stock_bucket.keys())
             selected_bucket = st.selectbox("Filter by Bucket", buckets)
         with Variance_Column:
-            variance_columns = ["None"]+['Current Avg Cost','Max Buying Price']
+            variance_columns = ["None"]+['Buying Price Avg','Max Buying Price']
             selected_variance_column = st.selectbox("Select Variance Column", variance_columns)
         # Apply filters
         filtered_df = st.session_state.master_df.copy()
-        if ((selected_month != "None") & (selected_year != "None") & (selected_shape != "None") & (selected_color != "None") & (selected_bucket != "None")) & (selected_variance_column != "None"):
+        if ((selected_month != "None") & (selected_year != "None") & (selected_shape != "None") & (selected_color != "None") & (selected_bucket != "None")) :
             filter_data,max_buying_price,current_avg_cost,MOM_Variance,MOM_Percent_Change,MOM_QoQ_Percent_Change,gap_output = get_filtered_data(selected_month,\
                                                                                                                         selected_year,\
                                                                                                                         selected_shape,\
