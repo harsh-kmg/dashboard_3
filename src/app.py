@@ -423,10 +423,21 @@ def sort_months(months):
 
 def create_metric_with_tooltip(label, value, tooltip_text):
     """
-    Create a metric with tooltip using pure CSS - Streamlit compatible version
+    Create a metric with tooltip using pure CSS - Streamlit compatible version with dynamic sizing
     """
     # Create unique ID for each metric
     metric_id = f"metric_{label.replace(' ', '_').lower()}_{hash(label) % 1000}"
+    
+    # Calculate approximate width based on text length
+    text_length = len(tooltip_text)
+    if text_length < 100:
+        tooltip_width = "min(300px, 80vw)"
+    elif text_length < 200:
+        tooltip_width = "min(400px, 85vw)"
+    elif text_length < 300:
+        tooltip_width = "min(500px, 90vw)"
+    else:
+        tooltip_width = "min(600px, 95vw)"
     
     # HTML with pure CSS tooltip (no JavaScript needed)
     html_content = f"""
@@ -453,7 +464,7 @@ def create_metric_with_tooltip(label, value, tooltip_text):
                 Hover for details
             </div>
             
-            <!-- Tooltip positioned at bottom -->
+            <!-- Tooltip positioned at bottom with dynamic width -->
             <div class="tooltip-content" style="
                 position: absolute;
                 top: 100%;
@@ -461,24 +472,28 @@ def create_metric_with_tooltip(label, value, tooltip_text):
                 transform: translateX(-50%);
                 background: #2c3e50;
                 color: white;
-                padding: 15px 20px;
-                border-radius: 8px;
-                font-size: 12px;
-                line-height: 1.4;
-                max-width: 280px;
+                padding: 20px 25px;
+                border-radius: 12px;
+                font-size: 14px;
+                line-height: 1.6;
+                min-width: 200px;
+                max-width: {tooltip_width};
+                width: max-content;
                 white-space: normal;
                 text-align: left;
                 z-index: 1000;
                 opacity: 0;
                 visibility: hidden;
                 transition: all 0.3s ease;
-                box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-                border: 1px solid #34495e;
-                margin-top: 10px;
+                box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+                border: 2px solid #34495e;
+                margin-top: 12px;
                 pointer-events: none;
+                word-wrap: break-word;
+                hyphens: auto;
             ">
-                <strong style="color: #3498db; display: block; margin-bottom: 8px; font-size: 13px;">{label}</strong>
-                <div style="color: #ecf0f1; font-size: 11px; line-height: 1.5;">
+                <strong style="color: #3498db; display: block; margin-bottom: 12px; font-size: 16px; font-weight: 600;">{label}</strong>
+                <div style="color: #ecf0f1; font-size: 13px; line-height: 1.6;">
                     {tooltip_text}
                 </div>
                 <!-- Tooltip arrow pointing upward -->
@@ -489,9 +504,9 @@ def create_metric_with_tooltip(label, value, tooltip_text):
                     transform: translateX(-50%);
                     width: 0;
                     height: 0;
-                    border-left: 8px solid transparent;
-                    border-right: 8px solid transparent;
-                    border-bottom: 8px solid #2c3e50;
+                    border-left: 12px solid transparent;
+                    border-right: 12px solid transparent;
+                    border-bottom: 12px solid #2c3e50;
                 "></div>
             </div>
         </div>
@@ -522,14 +537,30 @@ def create_metric_with_tooltip(label, value, tooltip_text):
         /* Mobile responsiveness */
         @media (max-width: 768px) {{
             .tooltip-content {{
-                max-width: 200px !important;
-                font-size: 11px !important;
-                padding: 12px 16px !important;
+                max-width: 300px !important;
+                min-width: 150px !important;
+                font-size: 12px !important;
+                padding: 16px 20px !important;
             }}
+        }}
+        
+        @media (max-width: 480px) {{
+            .tooltip-content {{
+                max-width: 250px !important;
+                min-width: 120px !important;
+                font-size: 11px !important;
+                padding: 14px 18px !important;
+            }}
+        }}
+        
+        /* Ensure tooltip doesn't overflow screen */
+        .tooltip-content {{
+            max-width: min(400px, 90vw) !important;
         }}
     </style>
     """
     return html_content
+
 
 def create_metric_with_tooltip_alternative(label, value, tooltip_text):
     """
