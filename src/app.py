@@ -6,6 +6,7 @@ from io import BytesIO
 import streamlit as st
 from utility import *
 
+
 def load_data(file):
     # Handle different input types
     if isinstance(file, str):
