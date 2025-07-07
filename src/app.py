@@ -313,10 +313,10 @@ def gap_analysis(max_qty,min_qty,stock_in_hand):
     min_qty : Minimum Quantity
     stock_in_hand : Stock in Hand
     """
-    if stock_in_hand >= max_qty:
+    if stock_in_hand > max_qty:
         excess_qty = stock_in_hand - max_qty
         return f"Excess : {excess_qty}"
-    elif stock_in_hand <= min_qty:
+    elif stock_in_hand < min_qty:
         deficit_qty = min_qty - stock_in_hand
         return f"Deficit, Need: {deficit_qty}"
     else:
