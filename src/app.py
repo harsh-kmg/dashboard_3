@@ -445,16 +445,16 @@ def create_metric_with_tooltip(label, value, tooltip_text):
     
     # Dynamic height calculation based on text length and estimated word wrapping
     # Assume average 50-60 characters per line in the tooltip
-    chars_per_line = 50
+    chars_per_line = 100
     estimated_lines = max(2, math.ceil(text_length / chars_per_line))
     
     # Base height + additional height per line
-    base_height = 80  # Base height for label and padding
-    line_height = 20  # Height per line of text
+    base_height = 200  # Base height for label and padding
+    line_height = 100  # Height per line of text
     tooltip_height = base_height + (estimated_lines * line_height)
     
     # Set minimum and maximum heights
-    tooltip_height = max(100, min(tooltip_height, 400))  # Min 100px, Max 400px
+    tooltip_height = max(100, min(tooltip_height, 1000))  # Min 100px, Max 400px
     
     # Dynamic padding based on content length
     if text_length < 100:
