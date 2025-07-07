@@ -434,13 +434,13 @@ def create_metric_with_tooltip(label, value, tooltip_text):
         <div class="metric-container" id="{metric_id}" style="
             border: 2px solid #e0e0e0;
             border-radius: 12px;
-            padding: 20px;
+            padding: 40px;
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             text-align: center;
             cursor: help;
             transition: all 0.3s ease;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            min-height: 80px;
+            min-height: 100px;
             position: relative;
         ">
             <div style="font-size: 14px; color: #666; margin-bottom: 8px; font-weight: 600;">
@@ -460,11 +460,11 @@ def create_metric_with_tooltip(label, value, tooltip_text):
             transform: translateX(-50%);
             background: #2c3e50;
             color: white;
-            padding: 15px 20px;
+            padding: 10px 10px;
             border-radius: 8px;
             font-size: 13px;
             line-height: 1.4;
-            max-width: 300px;
+            max-width: 400px;
             white-space: normal;
             text-align: left;
             z-index: 9999;
@@ -478,7 +478,7 @@ def create_metric_with_tooltip(label, value, tooltip_text):
             {tooltip_text}
             <div style="
                 position: absolute;
-                top: 100%;
+                top: 50%;
                 left: 50%;
                 transform: translateX(-50%);
                 width: 0;
