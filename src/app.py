@@ -684,6 +684,9 @@ def main():
             else:
                 # No data case
                 gap_display = f"{gap_output:+d}" if gap_output != 0 else "Optimal"
+                mbp_display = 0
+                cac_display = 0
+                mom_var_display = 0
                 mom_perc_display = "0.00%"
                 qoq_perc_display = "0.00%"
                 with col1:
