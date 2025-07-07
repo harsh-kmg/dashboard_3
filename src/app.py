@@ -375,6 +375,56 @@ def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_B
         return [filter_data,int(max_buying_price),int(current_avg_cost), int(MOM_Variance), MOM_Percent_Change, MOM_QoQ_Percent_Change,gap_analysis_op]
     except:
         return [pd.DataFrame(columns=master_df.columns.tolist()),f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",gap_analysis_op]
+
+def get_gap_summary_table(master_df, selected_month, selected_year, selected_shape, selected_color, selected_bucket):
+    """
+    Generate GAP summary table for all combinations of filter values
+    """
+    gap_summary = []
+    
+    # Get unique values for each filter
+    months = [selected_month] if selected_month != "None" else list(master_df['Month'].unique())
+    years = [selected_year] if selected_year != "None" else list(master_df['Year'].unique())
+    shapes = [selected_shape] if selected_shape != "None" else list(master_df['Shape key'].unique())
+    colors = [selected_color] if selected_color != "None" else list(master_df['Color Key'].unique())
+    buckets = [selected_bucket] if selected_bucket != "None" else list(master_df['Buckets'].unique())
+    
+    # Generate all combinations
+    for month in months:
+        for year in years:
+            for shape in shapes:
+                for color in colors:
+                    for bucket in buckets:
+                        # Filter data for current combination
+                        filtered_data = master_df[
+                            (master_df['Month'] == month) & 
+                            (master_df['Year'] == year) & 
+                            (master_df['Shape key'] == shape) & 
+                            (master_df['Color Key'] == color) & 
+                            (master_df['Buckets'] == bucket)
+                        ]
+                        
+                        if not filtered_data.empty:
+                            max_qty = filtered_data['Max Qty'].max()
+                            min_qty = filtered_data['Min Qty'].min()
+                            stock_in_hand = filtered_data.shape[0]
+                            gap_value = gap_analysis(max_qty, min_qty, stock_in_hand)
+                            
+                            gap_summary.append({
+                                'Month': month,
+                                'Year': year,
+                                'Shape': shape,
+                                'Color': color,
+                                'Bucket': bucket,
+                                'Max Qty': max_qty,
+                                'Min Qty': min_qty,
+                                'Stock in Hand': stock_in_hand,
+                                'GAP Value': gap_value,
+                                'Status': 'Excess' if gap_value > 0 else 'Need' if gap_value < 0 else 'Adequate'
+                            })
+    
+    return pd.DataFrame(gap_summary)
+
 def get_final_data(file,PARENT_DF = 'kunmings.pkl'):
     df = poplutate_monthly_stock_sheet(file)
     parent_df = load_data(PARENT_DF)
@@ -516,9 +566,48 @@ def main():
             file_name=f"processed_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
             mime="text/csv"
             )
-        else:
+        
+        # GAP Summary Table - Show for all combinations
+        st.subheader("📋 GAP Summary")
+        gap_summary_df = get_gap_summary_table(
+            st.session_state.master_df, 
+            selected_month, 
+            selected_year, 
+            selected_shape, 
+            selected_color, 
+            selected_bucket
+        )
+        
+        if not gap_summary_df.empty:
+            # Apply styling to highlight negative GAP values in red
+            def highlight_negative_gap(row):
+                if row['GAP Value'] < 0:
+                    return ['background-color: #ffebee; color: #c62828'] * len(row)
+                else:
+                    return [''] * len(row)
             
-            st.info("No data in master database. Upload an Excel file to get started!")
+            styled_df = gap_summary_df.style.apply(highlight_negative_gap, axis=1)
+            
+            st.dataframe(
+                styled_df,
+                use_container_width=True,
+                hide_index=True
+            )
+            
+            # Download GAP Summary
+            st.subheader("💾 Download GAP Summary")
+            gap_csv = gap_summary_df.to_csv(index=False)
+            st.download_button(
+                label="Download GAP Summary as CSV",
+                data=gap_csv,
+                file_name=f"gap_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                mime="text/csv"
+            )
+        else:
+            st.info("No data available for GAP analysis with current filters.")
+            
+        if not ((selected_month != "None") & (selected_year != "None") & (selected_shape != "None") & (selected_color != "None") & (selected_bucket != "None")):
+            st.info("Please select all filter values except 'Select Variance Column' to view detailed metrics.")
     else:
         st.info("No data in master database. Upload an Excel file to get started!")
     # Reset button
