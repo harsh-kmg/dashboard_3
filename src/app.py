@@ -462,7 +462,7 @@ def main():
                                                                                                                         selected_variance_column)
             # Display summary metrics
             st.subheader("📊 Summary Metrics")
-            mbp,cac,mom_var,mom_perc,qoq_perc,gap = st.columns(6)
+            mbp,cac,mom_var,mom_perc,qoq_perc = st.columns(5)
             if type(max_buying_price)!= str:
                 with mbp:
                     st.metric("Max Buying Price", f"${max_buying_price:,.2f}")
