@@ -611,6 +611,8 @@ def main():
             else:
                 # No data case
                 gap_display = f"{gap_output:+d}" if gap_output != 0 else "Optimal"
+                mom_perc_display = 0
+                qoq_perc_display = 0
                 with col1:
                     st.components.v1.html(create_metric_with_tooltip("Gap Analysis", gap_display, tooltips["Gap Analysis"]), height=120)
                 with col2:
