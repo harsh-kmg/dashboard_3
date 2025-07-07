@@ -717,7 +717,7 @@ def main():
                 with col6:
                     st.components.v1.html(
                 create_metric_with_tooltip("MOM QoQ Percent Change", qoq_perc_display, tooltips["MOM QoQ Percent Change"]), 
-                height=160
+                height=200
             )   
                 st.subheader("No Data Present for This Filter")
             
