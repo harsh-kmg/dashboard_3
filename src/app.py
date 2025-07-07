@@ -47,11 +47,9 @@ def load_data(file):
 
 def save_data(df):
     df.to_pickle('src/kunmings.pkl')
-
 def create_color_key(df,color_map):
     df['Color Key'] = df.Color.map(lambda x: color_map[x] if x in color_map else '')
     return df
-
 def create_bucket(df,stock_bucket=stock_bucket):
     """
     df : Monthly Stock Data Sheet
@@ -78,7 +76,6 @@ def create_date_join(df):
     df['Year'] = pd.to_datetime('today').year
     df['Join'] = df['Month'].astype(str) + '-' + df['Year'].map(lambda x: x-2000).astype(str)
     return df
-
 def concatenate_first_two_rows(df):
     result = {}
     for col in df.columns:
@@ -86,7 +83,6 @@ def concatenate_first_two_rows(df):
         value2 = str(df.iloc[1][col])
         result[col] = f"{value1}_{value2}"
     return result
-
 def populate_max_qty(df,MONTHLY_STOCK_DATA):
     """
     df : Max Qty Sheet
@@ -176,7 +172,6 @@ def populate_buying_prices(df,MONTHLY_STOCK_DATA):
     MONTHLY_STOCK_DATA['Max Buying Price'] = _BUYING_PRICE_
     MONTHLY_STOCK_DATA['Max Buying Price']=MONTHLY_STOCK_DATA['Max Buying Price'].map(lambda x:x[0] if isinstance(x, list) and len(x) > 0 else 0)
     return MONTHLY_STOCK_DATA
-
 def calculate_buying_price_avg(df):
     df['Buying Price Avg'] = df['Max Buying Price'] * df['Weight']
     return df
@@ -201,14 +196,12 @@ def get_quarter(month):
         return f'Q4-{yr}'
     else:
         return None
-
 def populate_quarter(df):
     """
     df : Monthly Stock Data Sheet
     """
     df['Quarter'] = df['Month'].apply(get_quarter)
     return df
-
 def create_shape_key(x):
     if x.__contains__(r'CUSHION'):
         return 'Cushion'
@@ -232,7 +225,6 @@ def create_shape_key(x):
         return 'Emerald'
     else:
         return 'Other'
-
 def poplutate_monthly_stock_sheet(file):
     """
     df_stock : Monthly Stock Data Sheet
@@ -258,7 +250,6 @@ def poplutate_monthly_stock_sheet(file):
     df_stock = populate_buying_prices(df_buying, df_stock)
     df_stock = calculate_buying_price_avg(df_stock)
     return df_stock
-
 def calculate_qoq_variance_percentage(current_quarter_price, previous_quarter_price):
     """
     Calculate quarter-on-quarter variance percentage of price.
@@ -289,6 +280,7 @@ def calculate_qoq_variance_percentage(current_quarter_price, previous_quarter_pr
         variance_percentage = ((current_quarter_price - previous_quarter_price) / (previous_quarter_price+current_quarter_price)) * 100
     return round(variance_percentage, 2)
 
+
 def calculate_qoq_variance_series(price_data):
     """
     Calculate quarter-on-quarter variance for a series of quarterly prices.
@@ -308,7 +300,6 @@ def calculate_qoq_variance_series(price_data):
         variances.append(variance)
     
     return variances
-
 def monthly_variance(df,col):
     analysis=df.groupby(['Month','Year'],as_index=False)[col].sum()
     analysis['Num_Month'] = analysis['Month'].map(month_map)
@@ -316,7 +307,6 @@ def monthly_variance(df,col):
     analysis['Monthly_change']=analysis[col].pct_change().fillna(0).round(2)*100
     analysis['qaurter_change']=[0]+calculate_qoq_variance_series(analysis[col].tolist())
     return analysis
-
 def gap_analysis(max_qty,min_qty,stock_in_hand):
     """
     max_qty : Maximum Quantity
@@ -385,14 +375,12 @@ def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_B
         return [filter_data,int(max_buying_price),int(current_avg_cost), int(MOM_Variance), MOM_Percent_Change, MOM_QoQ_Percent_Change,gap_analysis_op]
     except:
         return [pd.DataFrame(columns=master_df.columns.tolist()),f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",gap_analysis_op]
-
 def get_final_data(file,PARENT_DF = 'kunmings.pkl'):
     df = poplutate_monthly_stock_sheet(file)
     parent_df = load_data(PARENT_DF)
     master_df = pd.concat([df, parent_df], ignore_index=True,axis=0)
     save_data(master_df)
     return master_df
-
 def sort_months(months):
     """
     Sort months supporting both full names and abbreviations.
@@ -420,428 +408,124 @@ def sort_months(months):
     sorted_months = sorted(months, key=lambda month: month_mapping.get(month, 13))
     
     return sorted_months
-
-def create_metric_with_tooltip(label, value, tooltip_text):
-    """
-    Create a metric with tooltip using pure CSS - Streamlit compatible version with dynamic sizing
-    """
-    import math
-    
-    # Create unique ID for each metric
-    metric_id = f"metric_{label.replace(' ', '_').lower()}_{hash(label) % 1000}"
-    
-    # Calculate approximate width and height based on text length
-    text_length = len(tooltip_text)
-    
-    # Dynamic width calculation
-    if text_length < 100:
-        tooltip_width = "min(1000px, 300vw)"
-    elif text_length < 200:
-        tooltip_width = "min(1000px, 400vw)"
-    elif text_length < 300:
-        tooltip_width = "min(1000px, 500vw)"
-    else:
-        tooltip_width = "min(1000px, 600vw)"
-    
-    # Dynamic height calculation based on text length and estimated word wrapping
-    # Assume average 50-60 characters per line in the tooltip
-    chars_per_line = 100
-    estimated_lines = max(2, math.ceil(text_length / chars_per_line))
-    
-    # Base height + additional height per line
-    base_height = 200  # Base height for label and padding
-    line_height = 100  # Height per line of text
-    tooltip_height = base_height + (estimated_lines * line_height)
-    
-    # Set minimum and maximum heights
-    tooltip_height = max(100, min(tooltip_height, 1000))  # Min 100px, Max 400px
-    
-    # Dynamic padding based on content length
-    if text_length < 100:
-        padding = "60px 90px"
-    elif text_length < 200:
-        padding = "60px 90px"
-    else:
-        padding = "60px 90px"
-    
-    # HTML with pure CSS tooltip (no JavaScript needed)
-    html_content = f"""
-    <div style="position: relative; display: inline-block; width: 100%; margin-bottom: 10px;">
-        <div class="metric-container" style="
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 20px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            text-align: center;
-            cursor: help;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            min-height: 80px;
-            position: relative;
-        ">
-            <div style="font-size: 14px; color: #666; margin-bottom: 8px; font-weight: 600;">
-                {label}
-            </div>
-            <div style="font-size: 24px; font-weight: bold; color: #1f77b4; margin-bottom: 4px;">
-                {value}
-            </div>
-            <div style="font-size: 10px; color: #999; font-style: italic;">
-                Hover for details
-            </div>
-            
-            <!-- Tooltip positioned at bottom with dynamic width and height -->
-            <div class="tooltip-content" style="
-                position: absolute;
-                top: 100%;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #2c3e50;
-                color: white;
-                padding: {padding};
-                border-radius: 12px;
-                font-size: 6px;
-                line-height: 1.6;
-                min-width: 200px;
-                max-width: {tooltip_width};
-                width: max-content;
-                min-height: {tooltip_height}px;
-                max-height: 1000px;
-                overflow-y: auto;
-                white-space: normal;
-                text-align: left;
-                z-index: 1000;
-                opacity: 0;
-                visibility: hidden;
-                transition: all 0.3s ease;
-                box-shadow: 0 12px 24px rgba(0,0,0,0.4);
-                border: 2px solid #34495e;
-                margin-top: 12px;
-                pointer-events: none;
-                word-wrap: break-word;
-                hyphens: auto;
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
-            ">
-                <strong style="color: #3498db; display: block; margin-bottom: 12px; font-size: 6px; font-weight: 600; flex-shrink: 0;">{label}</strong>
-                <div style="color: #ecf0f1; font-size: 13px; line-height: 1.6; flex-grow: 1; overflow-y: auto;">
-                    {tooltip_text}
-                </div>
-                <!-- Tooltip arrow pointing upward -->
-                <div style="
-                    position: absolute;
-                    bottom: 100%;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    width: 0;
-                    height: 0;
-                    border-left: 12px solid transparent;
-                    border-right: 12px solid transparent;
-                    border-bottom: 12px solid #2c3e50;
-                "></div>
-            </div>
-        </div>
-    </div>
-    
-    <style>
-        /* Pure CSS hover effect - more reliable in Streamlit */
-        .metric-container:hover .tooltip-content {{
-            opacity: 1 !important;
-            visibility: visible !important;
-            transform: translateX(-50%) translateY(5px) !important;
-        }}
-        
-        .metric-container:hover {{
-            background: linear-gradient(135deg, #f0f7ff 0%, #e8f2ff 100%) !important;
-            border-color: #3498db !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15) !important;
-        }}
-        
-        /* Ensure tooltip stays visible when hovering */
-        .metric-container:hover .tooltip-content,
-        .tooltip-content:hover {{
-            opacity: 1 !important;
-            visibility: visible !important;
-        }}
-        
-        /* Custom scrollbar for tooltip if content is too long */
-        .tooltip-content::-webkit-scrollbar {{
-            width: 6px;
-        }}
-        
-        .tooltip-content::-webkit-scrollbar-track {{
-            background: #34495e;
-            border-radius: 3px;
-        }}
-        
-        .tooltip-content::-webkit-scrollbar-thumb {{
-            background: #3498db;
-            border-radius: 3px;
-        }}
-        
-        .tooltip-content::-webkit-scrollbar-thumb:hover {{
-            background: #2980b9;
-        }}
-        
-        /* Mobile responsiveness */
-        @media (max-width: 768px) {{
-            .tooltip-content {{
-                max-width: 300px !important;
-                min-width: 150px !important;
-                font-size: 12px !important;
-                padding: 16px 20px !important;
-                max-height: 300px !important;
-            }}
-        }}
-        
-        @media (max-width: 480px) {{
-            .tooltip-content {{
-                max-width: 1000px !important;
-                min-width: 120px !important;
-                font-size: 6px !important;
-                padding: 14px 18px !important;
-                max-height: 250px !important;
-            }}
-        }}
-        
-        /* Ensure tooltip doesn't overflow screen */
-        .tooltip-content {{
-            max-width: min(1000px, 900vw) !important;
-        }}
-        
-        /* Animation for height changes */
-        .tooltip-content {{
-            transition: all 0.3s ease, height 0.2s ease !important;
-        }}
-    </style>
-    """
-    return html_content
-
-def create_metric_with_tooltip_alternative(label, value, tooltip_text):
-    """
-    Alternative implementation using Streamlit's built-in help parameter
-    This is more reliable but less visually appealing
-    """
-    import streamlit as st
-    
-    # Create columns for better layout
-    col1, col2 = st.columns([4, 1])
-    
-    with col1:
-        st.metric(
-            label=label,
-            value=value,
-            help=tooltip_text
-        )
-    
-    return None
-
-
-def create_metric_with_tooltip_expander(label, value, tooltip_text):
-    """
-    Another alternative using expander for detailed information
-    """
-    import streamlit as st
-    
-    # Main metric display
-    st.metric(label=label, value=value)
-    
-    # Expander for detailed info
-    with st.expander(f"ℹ️ About {label}"):
-        st.write(tooltip_text)
-    
-    return None
 def main():
     st.set_page_config(page_title="Yellow Diamond Dashboard", layout="wide")
     st.title("Yellow Diamond Dashboard")
     st.markdown("Upload Excel files to process multiple sheets and filter data.")
-    
     # Initialize session state
     if 'data_processed' not in st.session_state:
         st.session_state.data_processed = False
     if 'master_df' not in st.session_state:
         st.session_state.master_df = pd.DataFrame()
-    
     # Sidebar for controls
     st.sidebar.header("Controls")
-    
     # File upload
     uploaded_file = st.sidebar.file_uploader(
         "Upload Excel File",
         type=['xlsx', 'xls'],
         help="Upload an Excel file with multiple sheets"
     )
-    
     # Main content area
     if uploaded_file is not None and not st.session_state.data_processed:
         with st.spinner("Processing Excel file..."):
             st.subheader("🗄️ Master Database")
-            st.session_state.master_df = get_final_data(uploaded_file)
+            st.session_state.master_df  = get_final_data(uploaded_file)
             st.session_state.data_processed = True
-    
     if not st.session_state.master_df.empty or uploaded_file is not None:
-        Month, Year, Shape, Color, Bucket, Variance_Column = st.columns(6)
-        
+        Month,Year,Shape,Color,Bucket,Variance_Column = st.columns(6)
         with Month:
-            categories = ["None"] + sort_months(list(st.session_state.master_df['Month'].unique()))
+            categories = ["None"]+sort_months(list(st.session_state.master_df['Month'].unique()))
             selected_month = st.selectbox("Filter by Month", categories)
         with Year:
-            years = ["None"] + sorted(list(st.session_state.master_df['Year'].unique()))
+            years = ["None"]+sorted(list(st.session_state.master_df['Year'].unique()))
             selected_year = st.selectbox("Filter by Year", years)
         with Shape:
-            shapes = ["None"] + list(st.session_state.master_df['Shape key'].unique())
+            shapes = ["None"]+list(st.session_state.master_df['Shape key'].unique())
             selected_shape = st.selectbox("Filter by Shape", shapes)
         with Color:
-            colors = ["None"] + list(st.session_state.master_df['Color Key'].unique())
+            colors = ["None"]+list(st.session_state.master_df['Color Key'].unique())
             selected_color = st.selectbox("Filter by Color", colors)
         with Bucket:
-            buckets = ["None"] + list(stock_bucket.keys())
+            buckets = ["None"]+list(stock_bucket.keys())
             selected_bucket = st.selectbox("Filter by Bucket", buckets)
         with Variance_Column:
-            variance_columns = ["None"] + ['Buying Price Avg', 'Max Buying Price']
+            variance_columns = ["None"]+['Buying Price Avg','Max Buying Price']
             selected_variance_column = st.selectbox("Select Variance Column", variance_columns)
-        
         # Apply filters
         filtered_df = st.session_state.master_df.copy()
-        
-        if ((selected_month != "None") & (selected_year != "None") & (selected_shape != "None") & 
-            (selected_color != "None") & (selected_bucket != "None")):
-            
-            filter_data, max_buying_price, current_avg_cost, MOM_Variance, MOM_Percent_Change, MOM_QoQ_Percent_Change, gap_output = get_filtered_data(
-                selected_month, selected_year, selected_shape, selected_color, selected_bucket, selected_variance_column
-            )
-            
-            # Display summary metrics with tooltips
+        if ((selected_month != "None") & (selected_year != "None") & (selected_shape != "None") & (selected_color != "None") & (selected_bucket != "None")) :
+            filter_data,max_buying_price,current_avg_cost,MOM_Variance,MOM_Percent_Change,MOM_QoQ_Percent_Change,gap_output = get_filtered_data(selected_month,\
+                                                                                                                        selected_year,\
+                                                                                                                        selected_shape,\
+                                                                                                                        selected_color,\
+                                                                                                                        selected_bucket,\
+                                                                                                                        selected_variance_column)
+            # Display summary metrics
             st.subheader("📊 Summary Metrics")
-            
-            # Define tooltips for each metric
-            tooltips = {
-                "Gap Analysis": f"{'Excess' if gap_output>0 else 'Need' if gap_output < 0 else 'Enough'}",
-                "Max Buying Price": "The highest price you should pay when purchasing this category of diamonds based on current market conditions.",
-                "Current Avg Cost": "calculated at 90% of max buying price.",
-                "MOM Variance": "Month-over-Month variance showing how much the current month's values differ from the average, expressed as a percentage.",
-                "MOM Percent Change": "Month-over-Month percentage change comparing current month to previous month's values.",
-                "MOM QoQ Percent Change": "Quarter-over-Quarter percentage change comparing current quarter to previous quarter's values."
-            }
-            
-            # Create columns for metrics
-            col1, col2, col3, col4, col5, col6 = st.columns(6)
-            
-            if type(max_buying_price) != str:
-                # Format values for display
-                gap_display = f"{gap_output:+d}" if gap_output != 0 else "Optimal"
-                mbp_display = f"${max_buying_price:,.2f}"
-                cac_display = f"${current_avg_cost:,.2f}"
-                mom_var_display = f"{MOM_Variance:,.2f}%"
-                mom_perc_display = f"{MOM_Percent_Change:.2f}%"
-                qoq_perc_display = f"{MOM_QoQ_Percent_Change:.2f}%"
+            mbp,cac,mom_var,mom_perc,qoq_perc,GAP = st.columns(6)
+            if type(max_buying_price)!= str:
+                with GAP:
+                    st.metric("Gap Analysis",delta=gap_output,help=f"{'Excess' if gap_output>0 else 'Need' if gap_output < 0 else 'Enough'}")
+                with mbp:
+                    st.metric("Max Buying Price", f"${max_buying_price:,.2f}")
+                with cac:
+                    st.metric("Current Avg Cost", f"${current_avg_cost:,.2f}")
+                with mom_var:
+                    st.metric("MOM Variance ", f"{MOM_Variance:,.2f}%")
+                with mom_perc:
+                    st.metric("MOM Percent Change", f"{MOM_Percent_Change:.2f}%")
+                with qoq_perc:
+                    st.metric("MOM QoQ Percent Change", f"{MOM_QoQ_Percent_Change:.2f}%")
                 
-                with col1:
-                     st.components.v1.html(
-                                                create_metric_with_tooltip("Gap Analysis", gap_display, tooltips["Gap Analysis"]), 
-                                                height=160
-                                            )
-                with col2:
-                    st.components.v1.html(
-                create_metric_with_tooltip("Max Buying Price", mbp_display, tooltips["Max Buying Price"]), 
-                height=160
-            )
-                with col3:
-                    st.components.v1.html(
-                create_metric_with_tooltip("Current Avg Cost", cac_display, tooltips["Current Avg Cost"]), 
-                height=160
-            )
-                with col4:
-                    st.components.v1.html(
-                create_metric_with_tooltip("MOM Variance", mom_var_display, tooltips["MOM Variance"]), 
-                height=160
-            )
-                with col5:
-                    st.components.v1.html(
-                create_metric_with_tooltip("MOM Percent Change", mom_perc_display, tooltips["MOM Percent Change"]), 
-                height=160
-            )
-                with col6:
-                    st.components.v1.html(
-                create_metric_with_tooltip("MOM QoQ Percent Change", qoq_perc_display, tooltips["MOM QoQ Percent Change"]), 
-                height=160
-            )
+                
             else:
-                # No data case
-                gap_display = f"{gap_output:+d}" if gap_output != 0 else "Optimal"
-                mbp_display = 0
-                cac_display = 0
-                mom_var_display = 0
-                mom_perc_display = "0.00%"
-                qoq_perc_display = "0.00%"
-                with col1:
-                     st.components.v1.html(
-                                            create_metric_with_tooltip("Gap Analysis", gap_display, tooltips["Gap Analysis"]), 
-                                            height=160
-                                        )
-                with col2:
-                    st.components.v1.html(
-                create_metric_with_tooltip("Max Buying Price", mbp_display, tooltips["Max Buying Price"]), 
-                height=160
-            )
-                with col3:
-                    st.components.v1.html(
-                create_metric_with_tooltip("Current Avg Cost", cac_display, tooltips["Current Avg Cost"]), 
-                height=160
-            )
-                with col4:
-                    st.components.v1.html(
-                create_metric_with_tooltip("MOM Variance", mom_var_display, tooltips["MOM Variance"]), 
-                height=160
-            )
-                with col5:
-                    st.components.v1.html(
-                create_metric_with_tooltip("MOM Percent Change", mom_perc_display, tooltips["MOM Percent Change"]), 
-                height=160
-            )
-                with col6:
-                    st.components.v1.html(
-                create_metric_with_tooltip("MOM QoQ Percent Change", qoq_perc_display, tooltips["MOM QoQ Percent Change"]), 
-                height=200
-            )   
+                with GAP:
+                    st.metric("Gap Analysis",gap_output,help=f"{'Excess' if gap_output>0 else 'Need' if gap_output < 0 else 'Enough'}")
+                with mbp:
+                    st.metric("Max Buying Price", f"0")
+                with cac:
+                    st.metric("Current Avg Cost", f"0")
+                with mom_var:
+                    st.metric("MOM Variance ", f"0")
+                with mom_perc:
+                    st.metric("MOM Percent Change", f"0")
+                with qoq_perc:
+                    st.metric("MOM QoQ Percent Change", f"0")
+                    
                 st.subheader("No Data Present for This Filter")
-            
             st.subheader("📊 Data Table")
             st.dataframe(
                 filter_data,
                 use_container_width=True,
                 hide_index=True
-            )
-            
+                    )
             # Download processed data
             st.subheader("💾 Download Filtered Data")
-            csv = filter_data.loc[:, ['Product Id', 'Shape key', 'Color Key', 'avg', 'Min Qty', 'Max Qty', 'Buying Price Avg', 'Max Buying Price']].to_csv(index=False)
+            csv = filter_data.loc[:,['Product Id','Shape key','Color Key','avg','Min Qty','Max Qty','Buying Price Avg','Max Buying Price']].to_csv(index=False)
             st.download_button(
-                label="Download Filtered Data as CSV",
-                data=csv,
-                file_name=f"filtered_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-                mime="text/csv"
+            label="Download Filtered Data as CSV",
+            data=csv,
+            file_name=f"filtered_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+            mime="text/csv"
             )
-            
             st.subheader("💾 Download Master Data")
             csv = filtered_df.to_csv(index=False)
             st.download_button(
-                label="Download Master Data as CSV",
-                data=csv,
-                file_name=f"processed_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-                mime="text/csv"
+            label="Download Master Data as CSV",
+            data=csv,
+            file_name=f"processed_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+            mime="text/csv"
             )
         else:
-            st.info("Please select all filter options to view the analysis.")
+            
+            st.info("No data in master database. Upload an Excel file to get started!")
     else:
         st.info("No data in master database. Upload an Excel file to get started!")
-    
     # Reset button
     if st.sidebar.button("Reset Data Processing"):
         st.session_state.data_processed = False
         st.session_state.master_df = pd.DataFrame()
         st.rerun()
-
+    
 if __name__ == "__main__":
     main()
