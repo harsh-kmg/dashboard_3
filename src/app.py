@@ -469,7 +469,7 @@ def main():
                 with mbp:
                     st.metric("Max Buying Price", f"${max_buying_price:,.2f}")
                 with cac:
-                    st.metric("Current Avg Cost", f"${current_avg_cost:,.2f}")
+                    st.metric("Current Avg Cost", f"${current_avg_cost:,.2f}",help="90% of Sum of (Max Buying Price * Weight)")
                 with mom_var:
                     st.metric("MOM Variance ", f"{MOM_Variance:,.2f}%")
                 with mom_perc:
