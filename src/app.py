@@ -425,11 +425,15 @@ def create_metric_with_tooltip(label, value, tooltip_text):
     """
     Create a metric with tooltip using pure CSS - Streamlit compatible version with dynamic sizing
     """
+    import math
+    
     # Create unique ID for each metric
     metric_id = f"metric_{label.replace(' ', '_').lower()}_{hash(label) % 1000}"
     
-    # Calculate approximate width based on text length
+    # Calculate approximate width and height based on text length
     text_length = len(tooltip_text)
+    
+    # Dynamic width calculation
     if text_length < 100:
         tooltip_width = "min(300px, 80vw)"
     elif text_length < 200:
@@ -438,6 +442,27 @@ def create_metric_with_tooltip(label, value, tooltip_text):
         tooltip_width = "min(500px, 90vw)"
     else:
         tooltip_width = "min(600px, 95vw)"
+    
+    # Dynamic height calculation based on text length and estimated word wrapping
+    # Assume average 50-60 characters per line in the tooltip
+    chars_per_line = 50
+    estimated_lines = max(2, math.ceil(text_length / chars_per_line))
+    
+    # Base height + additional height per line
+    base_height = 80  # Base height for label and padding
+    line_height = 20  # Height per line of text
+    tooltip_height = base_height + (estimated_lines * line_height)
+    
+    # Set minimum and maximum heights
+    tooltip_height = max(100, min(tooltip_height, 400))  # Min 100px, Max 400px
+    
+    # Dynamic padding based on content length
+    if text_length < 100:
+        padding = "15px 20px"
+    elif text_length < 200:
+        padding = "18px 25px"
+    else:
+        padding = "22px 30px"
     
     # HTML with pure CSS tooltip (no JavaScript needed)
     html_content = f"""
@@ -464,7 +489,7 @@ def create_metric_with_tooltip(label, value, tooltip_text):
                 Hover for details
             </div>
             
-            <!-- Tooltip positioned at bottom with dynamic width -->
+            <!-- Tooltip positioned at bottom with dynamic width and height -->
             <div class="tooltip-content" style="
                 position: absolute;
                 top: 100%;
@@ -472,13 +497,16 @@ def create_metric_with_tooltip(label, value, tooltip_text):
                 transform: translateX(-50%);
                 background: #2c3e50;
                 color: white;
-                padding: 20px 25px;
+                padding: {padding};
                 border-radius: 12px;
                 font-size: 14px;
                 line-height: 1.6;
                 min-width: 200px;
                 max-width: {tooltip_width};
                 width: max-content;
+                min-height: {tooltip_height}px;
+                max-height: 400px;
+                overflow-y: auto;
                 white-space: normal;
                 text-align: left;
                 z-index: 1000;
@@ -491,9 +519,12 @@ def create_metric_with_tooltip(label, value, tooltip_text):
                 pointer-events: none;
                 word-wrap: break-word;
                 hyphens: auto;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
             ">
-                <strong style="color: #3498db; display: block; margin-bottom: 12px; font-size: 16px; font-weight: 600;">{label}</strong>
-                <div style="color: #ecf0f1; font-size: 13px; line-height: 1.6;">
+                <strong style="color: #3498db; display: block; margin-bottom: 12px; font-size: 16px; font-weight: 600; flex-shrink: 0;">{label}</strong>
+                <div style="color: #ecf0f1; font-size: 13px; line-height: 1.6; flex-grow: 1; overflow-y: auto;">
                     {tooltip_text}
                 </div>
                 <!-- Tooltip arrow pointing upward -->
@@ -534,6 +565,25 @@ def create_metric_with_tooltip(label, value, tooltip_text):
             visibility: visible !important;
         }}
         
+        /* Custom scrollbar for tooltip if content is too long */
+        .tooltip-content::-webkit-scrollbar {{
+            width: 6px;
+        }}
+        
+        .tooltip-content::-webkit-scrollbar-track {{
+            background: #34495e;
+            border-radius: 3px;
+        }}
+        
+        .tooltip-content::-webkit-scrollbar-thumb {{
+            background: #3498db;
+            border-radius: 3px;
+        }}
+        
+        .tooltip-content::-webkit-scrollbar-thumb:hover {{
+            background: #2980b9;
+        }}
+        
         /* Mobile responsiveness */
         @media (max-width: 768px) {{
             .tooltip-content {{
@@ -541,6 +591,7 @@ def create_metric_with_tooltip(label, value, tooltip_text):
                 min-width: 150px !important;
                 font-size: 12px !important;
                 padding: 16px 20px !important;
+                max-height: 300px !important;
             }}
         }}
         
@@ -550,6 +601,7 @@ def create_metric_with_tooltip(label, value, tooltip_text):
                 min-width: 120px !important;
                 font-size: 11px !important;
                 padding: 14px 18px !important;
+                max-height: 250px !important;
             }}
         }}
         
@@ -557,10 +609,14 @@ def create_metric_with_tooltip(label, value, tooltip_text):
         .tooltip-content {{
             max-width: min(400px, 90vw) !important;
         }}
+        
+        /* Animation for height changes */
+        .tooltip-content {{
+            transition: all 0.3s ease, height 0.2s ease !important;
+        }}
     </style>
     """
     return html_content
-
 
 def create_metric_with_tooltip_alternative(label, value, tooltip_text):
     """
