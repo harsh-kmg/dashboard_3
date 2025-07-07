@@ -435,13 +435,13 @@ def create_metric_with_tooltip(label, value, tooltip_text):
     
     # Dynamic width calculation
     if text_length < 100:
-        tooltip_width = "min(300px, 300vw)"
+        tooltip_width = "min(1000px, 300vw)"
     elif text_length < 200:
-        tooltip_width = "min(400px, 400vw)"
+        tooltip_width = "min(1000px, 400vw)"
     elif text_length < 300:
-        tooltip_width = "min(500px, 500vw)"
+        tooltip_width = "min(1000px, 500vw)"
     else:
-        tooltip_width = "min(600px, 600vw)"
+        tooltip_width = "min(1000px, 600vw)"
     
     # Dynamic height calculation based on text length and estimated word wrapping
     # Assume average 50-60 characters per line in the tooltip
