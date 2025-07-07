@@ -465,7 +465,7 @@ def main():
             mbp,cac,mom_var,mom_perc,qoq_perc,GAP = st.columns(6)
             if type(max_buying_price)!= str:
                 with GAP:
-                    st.metric("Gap Analysis",value=gap_output,delta=gap_output,help=f"{'Excess' if gap_output>0 else 'Need' if gap_output < 0 else 'Enough'}")
+                    st.metric("Gap Analysis",value=gap_output,help=f"{'Excess' if gap_output>0 else 'Need' if gap_output < 0 else 'Enough'}")
                 with mbp:
                     st.metric("Max Buying Price", f"${max_buying_price:,.2f}")
                 with cac:
@@ -480,7 +480,7 @@ def main():
                 
             else:
                 with GAP:
-                    st.metric("Gap Analysis",value=gap_output,delta=gap_output,help=f"{'Excess' if gap_output>0 else 'Need' if gap_output < 0 else 'Enough'}")
+                    st.metric("Gap Analysis",value=gap_output,help=f"{'Excess' if gap_output>0 else 'Need' if gap_output < 0 else 'Enough'}")
                 with mbp:
                     st.metric("Max Buying Price", f"0")
                 with cac:
