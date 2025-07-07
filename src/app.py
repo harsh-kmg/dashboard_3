@@ -462,7 +462,7 @@ def create_metric_with_tooltip(label, value, tooltip_text):
     elif text_length < 200:
         padding = "18px 25px"
     else:
-        padding = "22px 30px"
+        padding = "60px 90px"
     
     # HTML with pure CSS tooltip (no JavaScript needed)
     html_content = f"""
@@ -499,13 +499,13 @@ def create_metric_with_tooltip(label, value, tooltip_text):
                 color: white;
                 padding: {padding};
                 border-radius: 12px;
-                font-size: 14px;
+                font-size: 6px;
                 line-height: 1.6;
                 min-width: 200px;
                 max-width: {tooltip_width};
                 width: max-content;
                 min-height: {tooltip_height}px;
-                max-height: 400px;
+                max-height: 1000px;
                 overflow-y: auto;
                 white-space: normal;
                 text-align: left;
