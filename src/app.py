@@ -6,7 +6,6 @@ from io import BytesIO
 import streamlit as st
 from utility import *
 
-
 def load_data(file):
     # Handle different input types
     if isinstance(file, str):
@@ -424,90 +423,95 @@ def sort_months(months):
 
 def create_metric_with_tooltip(label, value, tooltip_text):
     """
-    Create a metric with tooltip using HTML and CSS
+    Create a metric with tooltip using only CSS - More reliable in Streamlit
     """
     # Create unique ID for each metric
-    metric_id = f"metric_{label.replace(' ', '_').lower()}"
+    metric_id = f"metric_{label.replace(' ', '_').lower()}_{hash(label) % 1000}"
     
-    # HTML with inline CSS for tooltip
+    # Escape quotes in tooltip text
+    tooltip_text_escaped = tooltip_text.replace('"', '&quot;').replace("'", "&#39;")
+    
     html_content = f"""
-    <div style="position: relative; display: inline-block; width: 100%;">
-        <div class="metric-container" id="{metric_id}" style="
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 16px;
-            background: white;
+    <div style="position: relative; display: inline-block; width: 100%; margin-bottom: 10px;">
+        <div class="metric-container" data-tooltip="{tooltip_text_escaped}" style="
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             text-align: center;
             cursor: help;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-height: 80px;
+            position: relative;
         ">
-            <div style="font-size: 14px; color: #666; margin-bottom: 8px; font-weight: 500;">
+            <div style="font-size: 14px; color: #666; margin-bottom: 8px; font-weight: 600;">
                 {label}
             </div>
-            <div style="font-size: 28px; font-weight: bold; color: #1f77b4; margin-bottom: 4px;">
+            <div style="font-size: 24px; font-weight: bold; color: #1f77b4; margin-bottom: 4px;">
                 {value}
             </div>
+            <div style="font-size: 10px; color: #999; font-style: italic;">
+                Hover for details
+            </div>
         </div>
-        <div class="tooltip" id="tooltip_{metric_id}" style="
+    </div>
+    
+    <style>
+        .metric-container::before {{
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 105%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.4;
+            max-width: 300px;
+            white-space: normal;
+            text-align: left;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            border: 1px solid #34495e;
+            pointer-events: none;
+        }}
+        
+        .metric-container::after {{
+            content: '';
             position: absolute;
             bottom: 100%;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            white-space: nowrap;
-            max-width: 250px;
-            white-space: normal;
-            text-align: left;
-            z-index: 1000;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #2c3e50;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        ">
-            {tooltip_text}
-            <div style="
-                position: absolute;
-                top: 100%;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 0;
-                height: 0;
-                border-left: 6px solid transparent;
-                border-right: 6px solid transparent;
-                border-top: 6px solid rgba(0, 0, 0, 0.9);
-            "></div>
-        </div>
-    </div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {{
-            const metric = document.getElementById('{metric_id}');
-            const tooltip = document.getElementById('tooltip_{metric_id}');
-            
-            if (metric && tooltip) {{
-                metric.addEventListener('mouseenter', function() {{
-                    tooltip.style.opacity = '1';
-                    tooltip.style.visibility = 'visible';
-                    metric.style.backgroundColor = '#f8f9fa';
-                    metric.style.borderColor = '#1f77b4';
-                    metric.style.transform = 'translateY(-2px)';
-                }});
-                
-                metric.addEventListener('mouseleave', function() {{
-                    tooltip.style.opacity = '0';
-                    tooltip.style.visibility = 'hidden';
-                    metric.style.backgroundColor = 'white';
-                    metric.style.borderColor = '#e0e0e0';
-                    metric.style.transform = 'translateY(0)';
-                }});
-            }}
-        }});
-    </script>
+            transition: all 0.3s ease;
+            z-index: 9999;
+        }}
+        
+        .metric-container:hover::before,
+        .metric-container:hover::after {{
+            opacity: 1;
+            visibility: visible;
+        }}
+        
+        .metric-container:hover {{
+            background: #f0f7ff !important;
+            border-color: #3498db !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15) !important;
+        }}
+    </style>
     """
     return html_content
 
@@ -597,28 +601,28 @@ def main():
                 qoq_perc_display = f"{MOM_QoQ_Percent_Change:.2f}%"
                 
                 with col1:
-                    st.components.v1.html(create_metric_with_tooltip("Gap Analysis", gap_display, tooltips["Gap Analysis"]), height=120)
+                    st.components.v1.html(create_metric_with_tooltip("Gap Analysis", gap_display, tooltips["Gap Analysis"]), height=140)
                 with col2:
-                    st.components.v1.html(create_metric_with_tooltip("Max Buying Price", mbp_display, tooltips["Max Buying Price"]), height=120)
+                    st.components.v1.html(create_metric_with_tooltip("Max Buying Price", mbp_display, tooltips["Max Buying Price"]), height=140)
                 with col3:
-                    st.components.v1.html(create_metric_with_tooltip("Current Avg Cost", cac_display, tooltips["Current Avg Cost"]), height=120)
+                    st.components.v1.html(create_metric_with_tooltip("Current Avg Cost", cac_display, tooltips["Current Avg Cost"]), height=140)
                 with col4:
-                    st.components.v1.html(create_metric_with_tooltip("MOM Variance", mom_var_display, tooltips["MOM Variance"]), height=120)
+                    st.components.v1.html(create_metric_with_tooltip("MOM Variance", mom_var_display, tooltips["MOM Variance"]), height=140)
                 with col5:
-                    st.components.v1.html(create_metric_with_tooltip("MOM Percent Change", "0.00%", tooltips["MOM Percent Change"]), height=120)
+                    st.components.v1.html(create_metric_with_tooltip("MOM Percent Change", mom_perc_display, tooltips["MOM Percent Change"]), height=140)
                 with col6:
-                    st.components.v1.html(create_metric_with_tooltip("MOM QoQ Percent Change", "0.00%", tooltips["MOM QoQ Percent Change"]), height=120)
+                    st.components.v1.html(create_metric_with_tooltip("MOM QoQ Percent Change", qoq_perc_display, tooltips["MOM QoQ Percent Change"]), height=140)
             else:
                 # No data case
                 gap_display = f"{gap_output:+d}" if gap_output != 0 else "Optimal"
-                mom_perc_display = 0
-                qoq_perc_display = 0
+                mom_perc_display = "0.00%"
+                qoq_perc_display = "0.00%"
                 with col1:
-                    st.components.v1.html(create_metric_with_tooltip("Gap Analysis", gap_display, tooltips["Gap Analysis"]), height=120)
+                    st.components.v1.html(create_metric_with_tooltip("Gap Analysis", gap_display, tooltips["Gap Analysis"]), height=140)
                 with col2:
-                    st.components.v1.html(create_metric_with_tooltip("Max Buying Price", "$0.00", tooltips["Max Buying Price"]), height=120)
+                    st.components.v1.html(create_metric_with_tooltip("Max Buying Price", "$0.00", tooltips["Max Buying Price"]), height=140)
                 with col3:
-                    st.components.v1.html(create_metric_with_tooltip("Current Avg Cost", "$0.00", tooltips["Current Avg Cost"]), height=120)
+                    st.components.v1.html(create_metric_with_tooltip("Current Avg Cost", "$0.00", tooltips["Current Avg Cost"]), height=140)
                 with col4:
                     st.components.v1.html(create_metric_with_tooltip("MOM Variance", "0.00%", tooltips["MOM Variance"]), height=120)
                 with col5:
@@ -664,6 +668,4 @@ def main():
         st.rerun()
 
 if __name__ == "__main__":
-    main() 
-                
-            
+    main()
