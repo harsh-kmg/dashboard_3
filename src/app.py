@@ -462,7 +462,7 @@ def main():
                                                                                                                         selected_variance_column)
             # Display summary metrics
             st.subheader("📊 Summary Metrics")
-            mbp,cac,mom_var,mom_perc,qoq_perc,gap = st.columns(6)
+            mbp,cac,mom_var,mom_perc,qoq_perc = st.columns(5)
             if type(max_buying_price)!= str:
                 with mbp:
                     st.metric("Max Buying Price", f"${max_buying_price:,.2f}")
@@ -474,8 +474,7 @@ def main():
                     st.metric("MOM Percent Change", f"{MOM_Percent_Change:.2f}%")
                 with qoq_perc:
                     st.metric("MOM QoQ Percent Change", f"{MOM_QoQ_Percent_Change:.2f}%")
-                with gap:
-                    st.metric("Gap Analysis", gap_output)
+                
             else:
                 with mbp:
                     st.metric("Max Buying Price", f"0")
@@ -487,9 +486,11 @@ def main():
                     st.metric("MOM Percent Change", f"0")
                 with qoq_perc:
                     st.metric("MOM QoQ Percent Change", f"0")
-                with gap:
-                    st.metric("Gap Analysis", gap_output)
+                
                 st.subheader("No Data Present for This Filter")
+            gap = st.columns(1)
+            with gap:
+                st.metric("Gap Analysis", gap_output)
             st.subheader("📊 Data Table")
             st.dataframe(
                 filter_data,
