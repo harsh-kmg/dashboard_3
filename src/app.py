@@ -717,7 +717,7 @@ def main():
             
             # Define tooltips for each metric
             tooltips = {
-                "Gap Analysis": "Positive values indicate excess stock, negative values indicate shortage.",
+                "Gap Analysis": f"{'Excess' if gap_output>0 else 'Need' if gap_output < 0 else 'Enough'}",
                 "Max Buying Price": "The highest price you should pay when purchasing this category of diamonds based on current market conditions.",
                 "Current Avg Cost": "calculated at 90% of max buying price.",
                 "MOM Variance": "Month-over-Month variance showing how much the current month's values differ from the average, expressed as a percentage.",
