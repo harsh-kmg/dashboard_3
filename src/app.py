@@ -21,7 +21,7 @@ def load_data(file):
             df_dict = {}
             for sheet_name, df_ in df.items():
                 df_dict[sheet_name] = df_
-            st.info(df.keys())
+            # st.info(df.keys())
             return df_dict
             
     else:
@@ -36,7 +36,7 @@ def load_data(file):
             df_dict = {}
             for sheet_name, df_ in df.items():
                 df_dict[sheet_name] = df_
-            st.info(df.keys())
+            # st.info(df.keys())
             return df_dict
         elif file_type == 'pkl':
             df = pd.read_pickle(f"src/{file}")
