@@ -412,37 +412,6 @@ def main():
     st.set_page_config(page_title="Yellow Diamond Dashboard", layout="wide")
     st.title("Yellow Diamond Dashboard")
     st.markdown("Upload Excel files to process multiple sheets and filter data.")
-    st.markdown("""
-<style>
-[data-testid="metric-container"] {
-    background-color: #FFF;
-    border: 1px solid #CCC;
-    padding: 5% 5% 5% 10%;
-    border-radius: 5px;
-    border-left: 0.5rem solid #9AD8E1;
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-}
-
-[data-testid="metric-container"] > div {
-    width: fit-content;
-    margin: auto;
-}
-
-[data-testid="metric-container"] label {
-    width: fit-content;
-    margin: auto;
-    color: #36b9cc;
-    font-size: 18px !important;  /* Label size */
-}
-
-[data-testid="metric-container"] > div > div {
-    width: fit-content;
-    margin: auto;
-    font-size: 16px !important;  /* Value size */
-    color: #1f77b4;
-}
-</style>
-""", unsafe_allow_html=True)
     # Initialize session state
     if 'data_processed' not in st.session_state:
         st.session_state.data_processed = False
@@ -506,7 +475,7 @@ def main():
                 with qoq_perc:
                     st.metric("MOM QoQ Percent Change", f"{MOM_QoQ_Percent_Change:.2f}%")
                 with gap:
-                    st.metric("Gap Analysis", gap_output)
+                    st.metric("Gap Analysis", gap_output,"-2%")
                 
             else:
                 with mbp:
@@ -520,7 +489,7 @@ def main():
                 with qoq_perc:
                     st.metric("MOM QoQ Percent Change", f"0")
                 with gap:
-                    st.metric("Gap Analysis", gap_output)    
+                    st.metric("Gap Analysis", gap_output,"-2%")    
                 st.subheader("No Data Present for This Filter")
             
             
