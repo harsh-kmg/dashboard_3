@@ -458,9 +458,9 @@ def create_metric_with_tooltip(label, value, tooltip_text):
     
     # Dynamic padding based on content length
     if text_length < 100:
-        padding = "15px 20px"
+        padding = "60px 90px"
     elif text_length < 200:
-        padding = "18px 25px"
+        padding = "60px 90px"
     else:
         padding = "60px 90px"
     
@@ -523,7 +523,7 @@ def create_metric_with_tooltip(label, value, tooltip_text):
                 flex-direction: column;
                 justify-content: flex-start;
             ">
-                <strong style="color: #3498db; display: block; margin-bottom: 12px; font-size: 16px; font-weight: 600; flex-shrink: 0;">{label}</strong>
+                <strong style="color: #3498db; display: block; margin-bottom: 12px; font-size: 6px; font-weight: 600; flex-shrink: 0;">{label}</strong>
                 <div style="color: #ecf0f1; font-size: 13px; line-height: 1.6; flex-grow: 1; overflow-y: auto;">
                     {tooltip_text}
                 </div>
