@@ -47,7 +47,9 @@ def load_data(file):
 
 def save_data(df):
     df.to_pickle('src/kunmings.pkl')
-    
+def create_color_key(df,color_map):
+    df['Color Key'] = df.Color.map(lambda x: color_map[x] if x in color_map else '')
+    return df
 def create_bucket(df,stock_bucket=stock_bucket):
     """
     df : Monthly Stock Data Sheet
@@ -200,7 +202,29 @@ def populate_quarter(df):
     """
     df['Quarter'] = df['Month'].apply(get_quarter)
     return df
-
+def create_shape_key(x):
+    if x.__contains__(r'CUSHION'):
+        return 'Cushion'
+    elif x.__contains__(r'OVAL'):
+        return 'Oval'
+    elif x.__contains__(r'PEAR'):
+        return 'Pear'
+    elif x.__contains__(r'CUT-CORNERED'):
+        return 'Radiant'
+    elif x.__contains__(r'MODIFIED RECTANGULAR'):
+        return 'Cushion'
+    elif x.__contains__(r'MODIFIED SQUARE'):
+        return 'Cushion'
+    elif x.__contains__(r'HEART'):
+        return 'Cushion'
+    elif x.__contains__(r'MARQUISE MODIFIED'):
+        return 'Cushion'
+    elif x.__contains__(r'ROUND_CORNERED'):
+        return 'Cushion'
+    elif x.__contains__(r'EMERALD'):
+        return 'Emerald'
+    else:
+        return 'Other'
 def poplutate_monthly_stock_sheet(file):
     """
     df_stock : Monthly Stock Data Sheet
@@ -219,6 +243,8 @@ def poplutate_monthly_stock_sheet(file):
     df_stock = populate_quarter(df_stock)
     df_stock = calculate_avg(df_stock)
     df_stock = create_bucket(df_stock)
+    df_stock = create_color_key(df_stock, color_map)
+    df_stock['Shape key'] = df_stock['Shape'].apply(create_shape_key)
     df_stock = populate_max_qty(df_max_qty, df_stock)
     df_stock = populate_min_qty(df_min_qty, df_stock)
     df_stock = populate_buying_prices(df_buying, df_stock)
@@ -281,7 +307,20 @@ def monthly_variance(df,col):
     analysis['Monthly_change']=analysis[col].pct_change().fillna(0).round(2)*100
     analysis['qaurter_change']=[0]+calculate_qoq_variance_series(analysis[col].tolist())
     return analysis
-
+def gap_analysis(max_qty,min_qty,stock_in_hand):
+    """
+    max_qty : Maximum Quantity
+    min_qty : Minimum Quantity
+    stock_in_hand : Stock in Hand
+    """
+    if stock_in_hand >= max_qty:
+        excess_qty = stock_in_hand - max_qty
+        return f"Stock is Excess : {excess_qty} above maximum level"
+    elif stock_in_hand <= min_qty:
+        deficit_qty = min_qty - stock_in_hand
+        return f"Stock is below minimum level by {deficit_qty}"
+    else:
+        return "Stock is within acceptable range"
 
 def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_BUCKET,FILTER_MONTHLY_VAR_COL):
     """
@@ -314,6 +353,10 @@ def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_B
                                         (master_df['Shape key'] == FILTER_SHAPE) &\
                                         (master_df['Color Key'] == FILTER_COLOR) &\
                                         (master_df['Buckets'] == FILTER_BUCKET)]
+    max_qty = filter_data['Max Qty'].max()
+    min_qty = filter_data['Min Qty'].min()
+    stock_in_hand = filter_data.shape[0]
+    gap_analysis_op = gap_analysis(max_qty, min_qty, stock_in_hand)
     _filter_ = master_df[(master_df['Shape key'] == FILTER_SHAPE) &\
                                         (master_df['Color Key'] == FILTER_COLOR) &\
                                         (master_df['Buckets'] == FILTER_BUCKET)]
@@ -329,15 +372,42 @@ def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_B
             MOM_Percent_Change = 0
         if MOM_QoQ_Percent_Change == np.inf:
             MOM_QoQ_Percent_Change = 0
-        return [filter_data,int(max_buying_price),int(current_avg_cost), int(MOM_Variance), MOM_Percent_Change, MOM_QoQ_Percent_Change]
+        return [filter_data,int(max_buying_price),int(current_avg_cost), int(MOM_Variance), MOM_Percent_Change, MOM_QoQ_Percent_Change,gap_analysis_op]
     except:
-        return [pd.DataFrame(columns=master_df.columns.tolist()),f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter"]
+        return [pd.DataFrame(columns=master_df.columns.tolist()),f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",gap_analysis_op]
 def get_final_data(file,PARENT_DF = 'kunmings.pkl'):
     df = poplutate_monthly_stock_sheet(file)
     parent_df = load_data(PARENT_DF)
     master_df = pd.concat([df, parent_df], ignore_index=True,axis=0)
     save_data(master_df)
     return master_df
+def sort_months(months):
+    """
+    Sort months supporting both full names and abbreviations.
+    
+    Args:
+        months: List of month names (full names or abbreviations)
+    
+    Returns:
+        List of months sorted in chronological order
+    """
+    import calendar
+    
+    # Create mapping for both full names and abbreviations
+    month_mapping = {}
+    
+    for i in range(1, 13):
+        full_name = calendar.month_name[i]
+        abbr_name = calendar.month_abbr[i]
+        month_mapping[full_name] = i
+        month_mapping[abbr_name] = i
+        month_mapping[full_name.lower()] = i
+        month_mapping[abbr_name.lower()] = i
+    
+    # Sort based on month order
+    sorted_months = sorted(months, key=lambda month: month_mapping.get(month, 13))
+    
+    return sorted_months
 def main():
     st.set_page_config(page_title="Yellow Diamond Dashboard", layout="wide")
     st.title("Yellow Diamond Dashboard")
@@ -364,10 +434,10 @@ def main():
     if not st.session_state.master_df.empty or uploaded_file is not None:
         Month,Year,Shape,Color,Bucket,Variance_Column = st.columns(6)
         with Month:
-            categories = ["None"]+list(st.session_state.master_df['Month'].unique())
+            categories = ["None"]+sort_months(list(st.session_state.master_df['Month'].unique()))
             selected_month = st.selectbox("Filter by Month", categories)
         with Year:
-            years = ["None"]+list(st.session_state.master_df['Year'].unique())
+            years = ["None"]+sorted(list(st.session_state.master_df['Year'].unique()))
             selected_year = st.selectbox("Filter by Year", years)
         with Shape:
             shapes = ["None"]+list(st.session_state.master_df['Shape key'].unique())
@@ -376,15 +446,15 @@ def main():
             colors = ["None"]+list(st.session_state.master_df['Color Key'].unique())
             selected_color = st.selectbox("Filter by Color", colors)
         with Bucket:
-            buckets = ["None"]+list(st.session_state.master_df['Buckets'].unique())
+            buckets = ["None"]+list(stock_bucket.keys())
             selected_bucket = st.selectbox("Filter by Bucket", buckets)
         with Variance_Column:
-            variance_columns = ["None"]+['Buying Price Avg','Max Buying Price']
+            variance_columns = ["None"]+['Current Avg Cost','Max Buying Price']
             selected_variance_column = st.selectbox("Select Variance Column", variance_columns)
         # Apply filters
         filtered_df = st.session_state.master_df.copy()
         if ((selected_month != "None") & (selected_year != "None") & (selected_shape != "None") & (selected_color != "None") & (selected_bucket != "None")) & (selected_variance_column != "None"):
-            filter_data,max_buying_price,current_avg_cost,MOM_Variance,MOM_Percent_Change,MOM_QoQ_Percent_Change = get_filtered_data(selected_month,\
+            filter_data,max_buying_price,current_avg_cost,MOM_Variance,MOM_Percent_Change,MOM_QoQ_Percent_Change,gap_output = get_filtered_data(selected_month,\
                                                                                                                         selected_year,\
                                                                                                                         selected_shape,\
                                                                                                                         selected_color,\
@@ -392,7 +462,7 @@ def main():
                                                                                                                         selected_variance_column)
             # Display summary metrics
             st.subheader("📊 Summary Metrics")
-            mbp,cac,mom_var,mom_perc,qoq_perc = st.columns(5)
+            mbp,cac,mom_var,mom_perc,qoq_perc,gap = st.columns(6)
             if type(max_buying_price)!= str:
                 with mbp:
                     st.metric("Max Buying Price", f"${max_buying_price:,.2f}")
@@ -404,6 +474,8 @@ def main():
                     st.metric("MOM Percent Change", f"{MOM_Percent_Change:.2f}%")
                 with qoq_perc:
                     st.metric("MOM QoQ Percent Change", f"{MOM_QoQ_Percent_Change:.2f}%")
+                with gap:
+                    st.metric("Gap Analysis", gap_output)
             else:
                 with mbp:
                     st.metric("Max Buying Price", f"0")
@@ -415,6 +487,8 @@ def main():
                     st.metric("MOM Percent Change", f"0")
                 with qoq_perc:
                     st.metric("MOM QoQ Percent Change", f"0")
+                with gap:
+                    st.metric("Gap Analysis", gap_output)
                 st.subheader("No Data Present for This Filter")
             st.subheader("📊 Data Table")
             st.dataframe(
