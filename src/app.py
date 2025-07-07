@@ -597,9 +597,9 @@ def create_metric_with_tooltip(label, value, tooltip_text):
         
         @media (max-width: 480px) {{
             .tooltip-content {{
-                max-width: 250px !important;
+                max-width: 1000px !important;
                 min-width: 120px !important;
-                font-size: 11px !important;
+                font-size: 6px !important;
                 padding: 14px 18px !important;
                 max-height: 250px !important;
             }}
@@ -607,7 +607,7 @@ def create_metric_with_tooltip(label, value, tooltip_text):
         
         /* Ensure tooltip doesn't overflow screen */
         .tooltip-content {{
-            max-width: min(400px, 90vw) !important;
+            max-width: min(1000px, 900vw) !important;
         }}
         
         /* Animation for height changes */
