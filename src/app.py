@@ -474,8 +474,7 @@ def main():
                     st.metric("MOM Percent Change", f"{MOM_Percent_Change:.2f}%")
                 with qoq_perc:
                     st.metric("MOM QoQ Percent Change", f"{MOM_QoQ_Percent_Change:.2f}%")
-                with gap:
-                    st.metric("Gap Analysis",gap_output)
+                
                 
             else:
                 with mbp:
@@ -488,10 +487,12 @@ def main():
                     st.metric("MOM Percent Change", f"0")
                 with qoq_perc:
                     st.metric("MOM QoQ Percent Change", f"0")
-                with gap:
-                    st.metric("Gap Analysis", gap_output)    
+                    
                 st.subheader("No Data Present for This Filter")
-            
+            st.subheader("GAP ANALYSIS")
+            gap = st.columns(1)
+            with gap:
+                st.metric("Gap Analysis",gap_output)
             
             st.subheader("📊 Data Table")
             st.dataframe(
