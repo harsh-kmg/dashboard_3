@@ -453,10 +453,10 @@ def create_metric_with_tooltip(label, value, tooltip_text):
                 Hover for details
             </div>
             
-            <!-- Tooltip positioned absolutely within the container -->
+            <!-- Tooltip positioned at bottom -->
             <div class="tooltip-content" style="
                 position: absolute;
-                bottom: 100%;
+                top: 100%;
                 left: 50%;
                 transform: translateX(-50%);
                 background: #2c3e50;
@@ -474,24 +474,24 @@ def create_metric_with_tooltip(label, value, tooltip_text):
                 transition: all 0.3s ease;
                 box-shadow: 0 8px 16px rgba(0,0,0,0.3);
                 border: 1px solid #34495e;
-                margin-bottom: 10px;
+                margin-top: 10px;
                 pointer-events: none;
             ">
                 <strong style="color: #3498db; display: block; margin-bottom: 8px; font-size: 13px;">{label}</strong>
                 <div style="color: #ecf0f1; font-size: 11px; line-height: 1.5;">
                     {tooltip_text}
                 </div>
-                <!-- Tooltip arrow -->
+                <!-- Tooltip arrow pointing upward -->
                 <div style="
                     position: absolute;
-                    top: 100%;
+                    bottom: 100%;
                     left: 50%;
                     transform: translateX(-50%);
                     width: 0;
                     height: 0;
                     border-left: 8px solid transparent;
                     border-right: 8px solid transparent;
-                    border-top: 8px solid #2c3e50;
+                    border-bottom: 8px solid #2c3e50;
                 "></div>
             </div>
         </div>
@@ -502,7 +502,7 @@ def create_metric_with_tooltip(label, value, tooltip_text):
         .metric-container:hover .tooltip-content {{
             opacity: 1 !important;
             visibility: visible !important;
-            transform: translateX(-50%) translateY(-5px) !important;
+            transform: translateX(-50%) translateY(5px) !important;
         }}
         
         .metric-container:hover {{
@@ -530,7 +530,6 @@ def create_metric_with_tooltip(label, value, tooltip_text):
     </style>
     """
     return html_content
-
 
 def create_metric_with_tooltip_alternative(label, value, tooltip_text):
     """
