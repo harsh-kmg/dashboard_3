@@ -423,17 +423,15 @@ def sort_months(months):
 
 def create_metric_with_tooltip(label, value, tooltip_text):
     """
-    Create a metric with tooltip using only CSS - More reliable in Streamlit
+    Create a metric with tooltip using HTML and CSS - Improved version
     """
     # Create unique ID for each metric
     metric_id = f"metric_{label.replace(' ', '_').lower()}_{hash(label) % 1000}"
     
-    # Escape quotes in tooltip text
-    tooltip_text_escaped = tooltip_text.replace('"', '&quot;').replace("'", "&#39;")
-    
+    # HTML with inline CSS for tooltip
     html_content = f"""
     <div style="position: relative; display: inline-block; width: 100%; margin-bottom: 10px;">
-        <div class="metric-container" data-tooltip="{tooltip_text_escaped}" style="
+        <div class="metric-container" id="{metric_id}" style="
             border: 2px solid #e0e0e0;
             border-radius: 12px;
             padding: 20px;
@@ -455,11 +453,7 @@ def create_metric_with_tooltip(label, value, tooltip_text):
                 Hover for details
             </div>
         </div>
-    </div>
-    
-    <style>
-        .metric-container::before {{
-            content: attr(data-tooltip);
+        <div class="tooltip" id="tooltip_{metric_id}" style="
             position: absolute;
             bottom: 105%;
             left: 50%;
@@ -479,42 +473,101 @@ def create_metric_with_tooltip(label, value, tooltip_text):
             transition: all 0.3s ease;
             box-shadow: 0 8px 16px rgba(0,0,0,0.3);
             border: 1px solid #34495e;
-            pointer-events: none;
+        ">
+            <strong style="color: #3498db; display: block; margin-bottom: 5px;">{label}</strong>
+            {tooltip_text}
+            <div style="
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 0;
+                height: 0;
+                border-left: 8px solid transparent;
+                border-right: 8px solid transparent;
+                border-top: 8px solid #2c3e50;
+            "></div>
+        </div>
+    </div>
+    
+    <script>
+        (function() {{
+            // Wait for DOM to be ready
+            function initTooltip() {{
+                const metric = document.getElementById('{metric_id}');
+                const tooltip = document.getElementById('tooltip_{metric_id}');
+                
+                if (metric && tooltip) {{
+                    console.log('Initializing tooltip for {metric_id}');
+                    
+                    metric.addEventListener('mouseenter', function(e) {{
+                        console.log('Mouse enter {metric_id}');
+                        tooltip.style.opacity = '1';
+                        tooltip.style.visibility = 'visible';
+                        tooltip.style.transform = 'translateX(-50%) translateY(-5px)';
+                        metric.style.backgroundColor = '#f0f7ff';
+                        metric.style.borderColor = '#3498db';
+                        metric.style.transform = 'translateY(-2px)';
+                        metric.style.boxShadow = '0 6px 12px rgba(0,0,0,0.15)';
+                    }});
+                    
+                    metric.addEventListener('mouseleave', function(e) {{
+                        console.log('Mouse leave {metric_id}');
+                        tooltip.style.opacity = '0';
+                        tooltip.style.visibility = 'hidden';
+                        tooltip.style.transform = 'translateX(-50%) translateY(0)';
+                        metric.style.backgroundColor = '';
+                        metric.style.borderColor = '#e0e0e0';
+                        metric.style.transform = 'translateY(0)';
+                        metric.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+                    }});
+                    
+                    // Add touch support for mobile
+                    metric.addEventListener('touchstart', function(e) {{
+                        e.preventDefault();
+                        tooltip.style.opacity = '1';
+                        tooltip.style.visibility = 'visible';
+                        
+                        // Hide tooltip after 3 seconds on touch
+                        setTimeout(() => {{
+                            tooltip.style.opacity = '0';
+                            tooltip.style.visibility = 'hidden';
+                        }}, 3000);
+                    }});
+                    
+                    return true;
+                }} else {{
+                    console.log('Elements not found for {metric_id}');
+                    return false;
+                }}
+            }}
+            
+            // Try to initialize immediately
+            if (document.readyState === 'loading') {{
+                document.addEventListener('DOMContentLoaded', initTooltip);
+            }} else {{
+                // Try multiple times with delays to ensure Streamlit has rendered
+                setTimeout(initTooltip, 100);
+                setTimeout(initTooltip, 500);
+                setTimeout(initTooltip, 1000);
+            }}
+        }})();
+    </script>
+    
+    <style>
+        #{metric_id}:hover .tooltip {{
+            opacity: 1 !important;
+            visibility: visible !important;
         }}
         
-        .metric-container::after {{
-            content: '';
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 8px solid #2c3e50;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 9999;
-        }}
-        
-        .metric-container:hover::before,
-        .metric-container:hover::after {{
-            opacity: 1;
-            visibility: visible;
-        }}
-        
-        .metric-container:hover {{
-            background: #f0f7ff !important;
-            border-color: #3498db !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15) !important;
+        /* Fallback CSS hover effect */
+        .metric-container:hover + .tooltip {{
+            opacity: 1 !important;
+            visibility: visible !important;
         }}
     </style>
     """
     return html_content
-
 def main():
     st.set_page_config(page_title="Yellow Diamond Dashboard", layout="wide")
     st.title("Yellow Diamond Dashboard")
