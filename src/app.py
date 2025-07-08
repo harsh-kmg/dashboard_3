@@ -217,13 +217,13 @@ def create_shape_key(x):
     elif x.__contains__(r'MODIFIED SQUARE'):
         return 'Cushion'
     elif x.__contains__(r'HEART'):
-        return 'Cushion'
+        return 'Other'
     elif x.__contains__(r'MARQUISE MODIFIED'):
-        return 'Cushion'
+        return 'Other'
     elif x.__contains__(r'ROUND_CORNERED'):
         return 'Cushion'
     elif x.__contains__(r'EMERALD'):
-        return 'Emerald'
+        return 'Other'
     else:
         return 'Other'
 def poplutate_monthly_stock_sheet(file):
