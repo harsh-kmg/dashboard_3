@@ -363,7 +363,7 @@ def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_B
                                         (master_df['Buckets'] == FILTER_BUCKET)]
     try:
         max_buying_price = filter_data['Max Buying Price'].max()
-        current_avg_cost = sum(filter_data['avg'])/(filter_data['Weight'].sum() if filter_data['Weight'].sum() != 0 else 1)))
+        current_avg_cost = sum(filter_data['avg'])/(filter_data['Weight'].sum() if filter_data['Weight'].sum() != 0 else 1)
         # avg_value = _filter_[FILTER_MONTHLY_VAR_COL].mean()
         # MOM_Variance = (sum((filter_data[FILTER_MONTHLY_VAR_COL] - avg_value)/ avg_value )/filter_data.shape[0]) * 100
         # var_analysis = monthly_variance(_filter_,FILTER_MONTHLY_VAR_COL)
