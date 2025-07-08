@@ -574,6 +574,7 @@ def main():
                     )
             # Download processed data
             st.subheader("💾 Download Filtered Data")
+            filter_data['Avg Cost Total'] = filter_data['avg']
             csv = filter_data.loc[:,['Product Id','Shape key','Color Key','Avg Cost Total','Min Qty','Max Qty','Buying Price Avg','Max Buying Price']].to_csv(index=False)
             st.download_button(
             label="Download Filtered Data as CSV",
