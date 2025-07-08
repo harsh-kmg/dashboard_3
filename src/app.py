@@ -440,11 +440,11 @@ def get_gap_summary_table(master_df, selected_month, selected_year, selected_sha
                                 'Shape': shape,
                                 'Color': color,
                                 'Bucket': bucket,
-                                'Max Qty': max_qty,
-                                'Min Qty': min_qty,
-                                'Stock in Hand': stock_in_hand,
+                                # 'Max Qty': max_qty,
+                                # 'Min Qty': min_qty,
+                                # 'Stock in Hand': stock_in_hand,
                                 'GAP Value': gap_value,
-                                'Status': 'Excess' if gap_value > 0 else 'Need' if gap_value < 0 else 'Adequate'
+                                # 'Status': 'Excess' if gap_value > 0 else 'Need' if gap_value < 0 else 'Adequate'
                             })
     
     return pd.DataFrame(gap_summary)
