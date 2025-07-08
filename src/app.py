@@ -236,8 +236,9 @@ def poplutate_monthly_stock_sheet(file):
     df_max_qty : Max Qty Sheet
     """
     df = load_data(file)
-    df.rename(columns={'avg': 'Avg Cost Total'}, inplace=True)
+    
     df_stock = df['Monthly Stock Data']
+    df_stock.rename(columns={'avg': 'Avg Cost Total'}, inplace=True)
     df_buying = df['Buying Max Prices']
     df_min_qty = df['MIN Data']
     df_max_qty = df['MAX Data']
