@@ -323,7 +323,7 @@ def gap_analysis(max_qty,min_qty,stock_in_hand):
     else:
         return 0
 
-def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_BUCKET):
+def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_BUCKET,FILTER_MONTHLY_VAR_COL):
     """
     file : Monthly Stock Data Sheet
     FILTER_MONTH : Month to filter
@@ -364,25 +364,7 @@ def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_B
     try:
         max_buying_price = filter_data['Max Buying Price'].max()
         current_avg_cost = sum(.9*((filter_data['Max Buying Price'] * filter_data['Weight'])/(filter_data['Weight'].sum() if filter_data['Weight'].sum() != 0 else 1)))
-        # avg_value = _filter_[FILTER_MONTHLY_VAR_COL].mean()
-        # MOM_Variance = (sum((filter_data[FILTER_MONTHLY_VAR_COL] - avg_value)/ avg_value )/filter_data.shape[0]) * 100
-        # var_analysis = monthly_variance(_filter_,FILTER_MONTHLY_VAR_COL)
-        # MOM_Percent_Change = var_analysis[(var_analysis['Month'] == FILTER_MONTH) & (var_analysis['Year'] == FILTE_YEAR)]['Monthly_change'].values.tolist()[0]
-        # MOM_QoQ_Percent_Change = var_analysis[(var_analysis['Month'] == FILTER_MONTH) & (var_analysis['Year'] == FILTE_YEAR)]['qaurter_change'].values.tolist()[0]
-        # if MOM_Percent_Change == np.inf:
-        #     MOM_Percent_Change = 0
-        # if MOM_QoQ_Percent_Change == np.inf:
-        #     MOM_QoQ_Percent_Change = 0
-        return [filter_data,int(max_buying_price),int(current_avg_cost), gap_analysis_op]
-    except:
-        return [pd.DataFrame(columns=master_df.columns.tolist()),f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",gap_analysis_op]
-def get_summary_metrics(filter_data,FILTER_SHAPE,FILTER_COLOR,FILTER_BUCKET,FILTER_MONTHLY_VAR_COL):
-    master_df = load_data('kunmings.pkl')
-    _filter_ = master_df[(master_df['Shape key'] == FILTER_SHAPE) &\
-                                        (master_df['Color Key'] == FILTER_COLOR) &\
-                                        (master_df['Buckets'] == FILTER_BUCKET)]
-    try:
-        avg_value = _filter_[FILTER_MONTHLY_VAR_COL].mean()
+        avg_value = master_df[FILTER_MONTHLY_VAR_COL].mean()
         MOM_Variance = (sum((filter_data[FILTER_MONTHLY_VAR_COL] - avg_value)/ avg_value )/filter_data.shape[0]) * 100
         var_analysis = monthly_variance(_filter_,FILTER_MONTHLY_VAR_COL)
         MOM_Percent_Change = var_analysis[(var_analysis['Month'] == FILTER_MONTH) & (var_analysis['Year'] == FILTE_YEAR)]['Monthly_change'].values.tolist()[0]
@@ -391,11 +373,10 @@ def get_summary_metrics(filter_data,FILTER_SHAPE,FILTER_COLOR,FILTER_BUCKET,FILT
             MOM_Percent_Change = 0
         if MOM_QoQ_Percent_Change == np.inf:
             MOM_QoQ_Percent_Change = 0
-        return [int(MOM_Variance), MOM_Percent_Change, MOM_QoQ_Percent_Change]
+        return [filter_data,int(max_buying_price),int(current_avg_cost), int(MOM_Variance), MOM_Percent_Change, MOM_QoQ_Percent_Change,gap_analysis_op]
     except:
-        return [0,0,0]
-        
-    
+        return [pd.DataFrame(columns=master_df.columns.tolist()),f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",f"There is {filter_data.shape[0]} rows after filter",gap_analysis_op]
+
 def get_gap_summary_table(master_df, selected_month, selected_year, selected_shape, selected_color, selected_bucket):
     """
     Generate GAP summary table for all combinations of filter values
@@ -524,15 +505,12 @@ def main():
         # Apply filters
         filtered_df = st.session_state.master_df.copy()
         if ((selected_month != "None") & (selected_year != "None") & (selected_shape != "None") & (selected_color != "None") & (selected_bucket != "None")) :
-            filter_data,max_buying_price,current_avg_cost,gap_output = get_filtered_data(selected_month,\
+            filter_data,max_buying_price,current_avg_cost,MOM_Variance,MOM_Percent_Change,MOM_QoQ_Percent_Change,gap_output = get_filtered_data(selected_month,\
                                                                                                                         selected_year,\
                                                                                                                         selected_shape,\
                                                                                                                         selected_color,\
-                                                                                                                        selected_bucket)
-            MOM_Variance,MOM_Percent_Change,MOM_QoQ_Percent_Change = get_summary_metrics(filter_data,selected_shape,\
-                                                                                        selected_color,\
-                                                                                        selected_bucket,\
-                                                                                        selected_variance_column)
+                                                                                                                        selected_bucket,\
+                                                                                                                        selected_variance_column)
             # Display summary metrics
             st.subheader("📊 Summary Metrics")
             mbp,cac,mom_var,mom_perc,qoq_perc,GAP = st.columns(6)
