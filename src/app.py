@@ -614,8 +614,8 @@ def main():
                 else:
                     return [''] * len(row)
             def highlight_shape_gap(row):
-                if row['GAP Value'] < 0:
-                    return ['background-color: #ffebee; color: #c62828'] * len(row)
+                # if row['GAP Value'] < 0:
+                #     return ['background-color: #ffebee; color: #c62828'] * len(row)
                 if row['Shape']=='Cushion':
                     return ['background-color: #baffc9; color: #c62828'] * len(row)
                 elif row['Shape']=='Oval':
@@ -628,8 +628,8 @@ def main():
                     return ['background-color: #ffffba; color: #c62828'] * len(row)
                 else:
                     return [''] * len(row)
-            styled_df = gap_summary_df.style.apply(highlight_shape_gap, axis=0)
-            # styled_df = gap_summary_df.style.apply(highlight_negative_gap, axis=1)
+            styled_df = gap_summary_df.style.apply(highlight_shape_gap, axis=1)
+            styled_df = styled_df.style.apply(highlight_negative_gap, axis=1)
             
             st.dataframe(
                 styled_df,
