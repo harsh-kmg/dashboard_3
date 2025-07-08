@@ -25,6 +25,7 @@ def load_data(file):
             return df_dict
             
             
+            
     else:
         # File object from Streamlit uploader
         if hasattr(file, 'name'):
