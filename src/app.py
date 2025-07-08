@@ -517,7 +517,7 @@ def main():
             shapes = ["None"]+list(st.session_state.master_df['Shape key'].unique())
             selected_shape = st.selectbox("Filter by Shape", shapes)
         with Color:
-            colors = ["None"]+list(st.session_state.master_df['Color Key'].unique())
+            colors = ["None"]+['WXYZ','FLY','FY','FIY','FVY']
             selected_color = st.selectbox("Filter by Color", colors)
         with Bucket:
             buckets = ["None"]+list(stock_bucket.keys())
