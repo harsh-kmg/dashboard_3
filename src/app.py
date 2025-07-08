@@ -447,7 +447,7 @@ def get_gap_summary_table(master_df, selected_month, selected_year, selected_sha
                                 # 'Status': 'Excess' if gap_value > 0 else 'Need' if gap_value < 0 else 'Adequate'
                             })
     
-    return pd.DataFrame(gap_summary)
+    return pd.DataFrame(gap_summary).sort_values(by=['Shape','Color','Bucket'])
 
 def get_final_data(file,PARENT_DF = 'kunmings.pkl'):
     df = poplutate_monthly_stock_sheet(file)
@@ -613,7 +613,20 @@ def main():
                     return ['background-color: #ffebee; color: #c62828'] * len(row)
                 else:
                     return [''] * len(row)
-            
+            def highlight_shape_gap(row):
+                if row['Shape']=='Cushion':
+                    return ['background-color: #baffc9; color: #c62828'] * len(row)
+                elif row['Shape']=='Oval':
+                    return ['background-color: #bae1ff; color: #c62828'] * len(row)
+                elif row['Shape']=='Pear':
+                    return ['background-color: #ffb3ba; color: #c62828'] * len(row)
+                elif row['Shape']=='Radiant':
+                    return ['background-color: #ffdfba; color: #c62828'] * len(row)
+                elif row['Shape']=='Other':
+                    return ['background-color: #ffffba; color: #c62828'] * len(row)
+                else:
+                    return [''] * len(row)
+            styled_df = gap_summary_df.style.apply(highlight_shape_gap, axis=1)
             styled_df = gap_summary_df.style.apply(highlight_negative_gap, axis=1)
             
             st.dataframe(
