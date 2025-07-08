@@ -205,7 +205,7 @@ def populate_quarter(df):
     df['Quarter'] = df['Month'].apply(get_quarter)
     return df
 def create_shape_key(x):
-    if x.__contains__(r'HEART'):
+    if x.__contains__(r'HEART MODIFIED BRILLIANT'):
         return 'Other'
     elif x.__contains__(r'CUSHION'):
         return 'Cushion'
