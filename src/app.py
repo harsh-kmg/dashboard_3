@@ -365,7 +365,7 @@ def get_filtered_data(FILTER_MONTH,FILTE_YEAR,FILTER_SHAPE,FILTER_COLOR,FILTER_B
                                         (master_df['Buckets'] == FILTER_BUCKET)]
     try:
         max_buying_price = filter_data['Max Buying Price'].max()
-        current_avg_cost = (sum(filter_data['avg'])/(filter_data['Weight'].sum() if filter_data['Weight'].sum() != 0 else 1))*.9
+        current_avg_cost = (sum(filter_data['Avg Cost Total'])/(filter_data['Weight'].sum() if filter_data['Weight'].sum() != 0 else 1))*.9
         # avg_value = _filter_[FILTER_MONTHLY_VAR_COL].mean()
         # MOM_Variance = (sum((filter_data[FILTER_MONTHLY_VAR_COL] - avg_value)/ avg_value )/filter_data.shape[0]) * 100
         # var_analysis = monthly_variance(_filter_,FILTER_MONTHLY_VAR_COL)
@@ -576,7 +576,7 @@ def main():
                     )
             # Download processed data
             st.subheader("💾 Download Filtered Data")
-            filter_data['Avg Cost Total'] = filter_data['avg']
+            # filter_data['Avg Cost Total'] = filter_data['avg']
             csv = filter_data.loc[:,['Product Id','Shape key','Color Key','Avg Cost Total','Min Qty','Max Qty','Buying Price Avg','Max Buying Price']].to_csv(index=False)
             st.download_button(
             label="Download Filtered Data as CSV",
