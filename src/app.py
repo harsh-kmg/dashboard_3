@@ -215,13 +215,13 @@ def create_shape_key(x):
         return 'Pear'
     elif x.__contains__(r'CUT-CORNERED'):
         return 'Radiant'
-    # elif x.__contains__(r'MODIFIED RECTANGULAR'):
-        # return 'Cushion'
-    # elif x.__contains__(r'MODIFIED SQUARE'):
-    #     return 'Cushion'
+    elif x.__contains__(r'MODIFIED RECTANGULAR'):
+        return 'Cushion'
+    elif x.__contains__(r'MODIFIED SQUARE'):
+        return 'Cushion'
     
-    # elif x.__contains__(r'MARQUISE MODIFIED'):
-    #     return 'Other'
+    elif x.__contains__(r'MARQUISE MODIFIED'):
+        return 'Other'
     elif x.__contains__(r'ROUND_CORNERED'):
         return 'Cushion'
     elif x.__contains__(r'EMERALD'):
