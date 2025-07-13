@@ -514,7 +514,7 @@ def create_trend_visualization(master_df, selected_shape, selected_color, select
     """
     
     # Filter data based on selections
-    if (selected_shape!=None and selected_color!=None and slected_bucket!=None) or (selected_shape!="None" and selected_color!="None" and slected_bucket!="None"):
+    if (selected_shape!=None and selected_color!=None and selected_bucket!=None) or (selected_shape!="None" and selected_color!="None" and selected_bucket!="None"):
         filtered_df = master_df[
             (master_df['Shape key'] == selected_shape) & 
             (master_df['Color Key'] == selected_color) & 
