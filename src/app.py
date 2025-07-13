@@ -514,11 +514,14 @@ def create_trend_visualization(master_df, selected_shape, selected_color, select
     """
     
     # Filter data based on selections
-    filtered_df = master_df[
-        (master_df['Shape key'] == selected_shape) & 
-        (master_df['Color Key'] == selected_color) & 
-        (master_df['Buckets'] == selected_bucket)
-    ]
+    if (selected_shape!=None & selected_color!=None & slected_bucket!=None) or (selected_shape!="None" & selected_color!="None" & slected_bucket!="None"):
+        filtered_df = master_df[
+            (master_df['Shape key'] == selected_shape) & 
+            (master_df['Color Key'] == selected_color) & 
+            (master_df['Buckets'] == selected_bucket)
+        ]
+    else:
+        filtered_df = master_df
     
     if filtered_df.empty:
         # Return empty figure if no data
