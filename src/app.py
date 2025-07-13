@@ -538,7 +538,7 @@ def create_trend_visualization(master_df, selected_shape=None, selected_color=No
     variance_col = selected_variance_column
     if variance_col == 'Current Average Cost':
         variance_col = 'Buying Price Avg'
-    elif variance_col == 'None':
+    elif variance_col == 'None' or variance_col == None:
         variance_col = 'Max Buying Price' # Default column
     # monthly_variance
     # Calculate monthly variance data
