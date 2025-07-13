@@ -640,18 +640,6 @@ def main():
             
             # Download GAP Summary
             st.subheader("💾 Download GAP Summary")
-            gap_summary.append({
-                                'Month': month,
-                                'Year': year,
-                                'Shape': shape,
-                                'Color': color,
-                                'Bucket': bucket,
-                                'Max Qty': max_qty,
-                                'Min Qty': min_qty,
-                                'Stock in Hand': stock_in_hand,
-                                'GAP Value': gap_value,
-                                'Status': 'Excess' if gap_value > 0 else 'Need' if gap_value < 0 else 'Adequate'
-                            })
             gap_summary_df_cols = ['Month','Year','Shape','Color','Bucket','GAP Value']
             gap_csv = gap_summary_df.loc[:,gap_summary_df_cols].to_csv(index=False)
             gap_csv_excess = gap_summary_df[gap_summary_df['Status']=='Excess'].loc[:,gap_summary_df_cols].to_csv(index=False)
