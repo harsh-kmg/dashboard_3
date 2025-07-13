@@ -536,14 +536,15 @@ def create_trend_visualization(master_df, selected_shape, selected_color, select
     if variance_col == 'Current Average Cost':
         variance_col = 'Buying Price Avg'
     elif variance_col == 'None':
-        variance_col = 'Avg Cost Total'  # Default column
-    
+        variance_col = 'Max Buying Price # Default column
+    # monthly_variance
     # Calculate monthly variance data
     try:
         var_analysis = monthly_variance(filtered_df, variance_col)
         
         # Create date column for proper sorting
-        var_analysis['Date'] = pd.to_datetime(var_analysis[['Year', 'Num_Month']].assign(day=1))
+        var_analysis['Date']='01'+'-'+var_analysis['Num_Month'].astype(str)+'-'+var_analysis['Year'].astype(str)
+        var_analysis['Date'] = pd.to_datetime(var_analysis['Date'], format='%d-%m-%Y')
         var_analysis = var_analysis.sort_values('Date')
         
         # Create subplot with secondary y-axis
@@ -686,8 +687,10 @@ def create_summary_charts(master_df, selected_shape, selected_color, selected_bu
     
     # Create date column for proper sorting
     summary_data['Num_Month'] = summary_data['Month'].map(month_map)
-    summary_data['Date'] = pd.to_datetime(summary_data[['Year', 'Num_Month']].assign(day=1))
+    summary_data['Date']='01'+'-'+summary_data['Num_Month'].astype(str)+'-'+summary_data['Year'].astype(str)
+    summary_data['Date'] = pd.to_datetime(summary_data['Date'], format='%d-%m-%Y')
     summary_data = summary_data.sort_values('Date')
+    
     
     # Create subplots
     fig = make_subplots(
