@@ -4,6 +4,9 @@ from typing import Dict, Optional
 from datetime import datetime
 from io import BytesIO
 import streamlit as st
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from utility import *
 
 def load_data(file):
@@ -495,6 +498,275 @@ def sort_months(months):
     sorted_months = sorted(months, key=lambda month: month_mapping.get(month, 13))
     
     return sorted_months
+def create_trend_visualization(master_df, selected_shape, selected_color, selected_bucket, selected_variance_column):
+    """
+    Create trend line visualizations for MOM Variance and MOM QoQ Percent Change
+    
+    Args:
+        master_df: Master dataframe containing all data
+        selected_shape: Selected shape filter
+        selected_color: Selected color filter  
+        selected_bucket: Selected bucket filter
+        selected_variance_column: Column to calculate variance for
+    
+    Returns:
+        plotly figure object
+    """
+    
+    # Filter data based on selections
+    filtered_df = master_df[
+        (master_df['Shape key'] == selected_shape) & 
+        (master_df['Color Key'] == selected_color) & 
+        (master_df['Buckets'] == selected_bucket)
+    ]
+    
+    if filtered_df.empty:
+        # Return empty figure if no data
+        fig = go.Figure()
+        fig.add_annotation(
+            text="No data available for selected filters",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, xanchor='center', yanchor='middle',
+            showarrow=False, font=dict(size=16)
+        )
+        return fig
+    
+    # Prepare variance column
+    variance_col = selected_variance_column
+    if variance_col == 'Current Average Cost':
+        variance_col = 'Buying Price Avg'
+    elif variance_col == 'None':
+        variance_col = 'Avg Cost Total'  # Default column
+    
+    # Calculate monthly variance data
+    try:
+        var_analysis = monthly_variance(filtered_df, variance_col)
+        
+        # Create date column for proper sorting
+        var_analysis['Date'] = pd.to_datetime(var_analysis[['Year', 'Num_Month']].assign(day=1))
+        var_analysis = var_analysis.sort_values('Date')
+        
+        # Create subplot with secondary y-axis
+        fig = make_subplots(
+            rows=2, cols=1,
+            subplot_titles=('Monthly Variance Trend', 'Quarter-over-Quarter Change'),
+            vertical_spacing=0.1,
+            specs=[[{"secondary_y": False}], [{"secondary_y": False}]]
+        )
+        
+        # Add Monthly Variance line
+        fig.add_trace(
+            go.Scatter(
+                x=var_analysis['Date'],
+                y=var_analysis['Monthly_change'],
+                mode='lines+markers',
+                name='Monthly Change %',
+                line=dict(color='#1f77b4', width=3),
+                marker=dict(size=8, color='#1f77b4'),
+                hovertemplate='<b>%{x|%b %Y}</b><br>' +
+                             'Monthly Change: %{y:.2f}%<br>' +
+                             '<extra></extra>'
+            ),
+            row=1, col=1
+        )
+        
+        # Add QoQ Change line
+        fig.add_trace(
+            go.Scatter(
+                x=var_analysis['Date'],
+                y=var_analysis['qaurter_change'],
+                mode='lines+markers',
+                name='QoQ Change %',
+                line=dict(color='#ff7f0e', width=3),
+                marker=dict(size=8, color='#ff7f0e'),
+                hovertemplate='<b>%{x|%b %Y}</b><br>' +
+                             'QoQ Change: %{y:.2f}%<br>' +
+                             '<extra></extra>'
+            ),
+            row=2, col=1
+        )
+        
+        # Add zero reference lines
+        fig.add_hline(y=0, line_dash="dash", line_color="gray", opacity=0.7, row=1, col=1)
+        fig.add_hline(y=0, line_dash="dash", line_color="gray", opacity=0.7, row=2, col=1)
+        
+        # Update layout
+        fig.update_layout(
+            title=f"Trend Analysis - {selected_shape} | {selected_color} | {selected_bucket}",
+            height=600,
+            showlegend=True,
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            ),
+            plot_bgcolor='white',
+            paper_bgcolor='white'
+        )
+        
+        # Update x-axis
+        fig.update_xaxes(
+            title_text="Date",
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='lightgray',
+            row=2, col=1
+        )
+        
+        # Update y-axes
+        fig.update_yaxes(
+            title_text="Monthly Change (%)",
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='lightgray',
+            row=1, col=1
+        )
+        
+        fig.update_yaxes(
+            title_text="QoQ Change (%)",
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='lightgray',
+            row=2, col=1
+        )
+        
+        return fig
+        
+    except Exception as e:
+        # Return error figure
+        fig = go.Figure()
+        fig.add_annotation(
+            text=f"Error creating visualization: {str(e)}",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, xanchor='center', yanchor='middle',
+            showarrow=False, font=dict(size=16)
+        )
+        return fig
+
+def create_summary_charts(master_df, selected_shape, selected_color, selected_bucket):
+    """
+    Create summary charts showing overall trends across all months/years
+    
+    Args:
+        master_df: Master dataframe
+        selected_shape: Selected shape filter
+        selected_color: Selected color filter
+        selected_bucket: Selected bucket filter
+    
+    Returns:
+        plotly figure object
+    """
+    
+    # Filter data
+    filtered_df = master_df[
+        (master_df['Shape key'] == selected_shape) & 
+        (master_df['Color Key'] == selected_color) & 
+        (master_df['Buckets'] == selected_bucket)
+    ]
+    
+    if filtered_df.empty:
+        fig = go.Figure()
+        fig.add_annotation(
+            text="No data available for selected filters",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, xanchor='center', yanchor='middle',
+            showarrow=False, font=dict(size=16)
+        )
+        return fig
+    
+    # Group by month and year to get summary statistics
+    summary_data = filtered_df.groupby(['Month', 'Year']).agg({
+        'Avg Cost Total': 'mean',
+        'Max Buying Price': 'mean',
+        'Weight': 'sum',
+        'Product Id': 'count'
+    }).reset_index()
+    
+    # Create date column for proper sorting
+    summary_data['Num_Month'] = summary_data['Month'].map(month_map)
+    summary_data['Date'] = pd.to_datetime(summary_data[['Year', 'Num_Month']].assign(day=1))
+    summary_data = summary_data.sort_values('Date')
+    
+    # Create subplots
+    fig = make_subplots(
+        rows=2, cols=2,
+        subplot_titles=('Average Cost Trend', 'Max Buying Price Trend', 
+                       'Total Weight', 'Product Count'),
+        specs=[[{"secondary_y": False}, {"secondary_y": False}],
+               [{"secondary_y": False}, {"secondary_y": False}]]
+    )
+    
+    # Average Cost Trend
+    fig.add_trace(
+        go.Scatter(
+            x=summary_data['Date'],
+            y=summary_data['Avg Cost Total'],
+            mode='lines+markers',
+            name='Avg Cost',
+            line=dict(color='#2E86AB', width=2),
+            marker=dict(size=6)
+        ),
+        row=1, col=1
+    )
+    
+    # Max Buying Price Trend
+    fig.add_trace(
+        go.Scatter(
+            x=summary_data['Date'],
+            y=summary_data['Max Buying Price'],
+            mode='lines+markers',
+            name='Max Buying Price',
+            line=dict(color='#A23B72', width=2),
+            marker=dict(size=6)
+        ),
+        row=1, col=2
+    )
+    
+    # Total Weight
+    fig.add_trace(
+        go.Scatter(
+            x=summary_data['Date'],
+            y=summary_data['Weight'],
+            mode='lines+markers',
+            name='Total Weight',
+            line=dict(color='#F18F01', width=2),
+            marker=dict(size=6)
+        ),
+        row=2, col=1
+    )
+    
+    # Product Count
+    fig.add_trace(
+        go.Scatter(
+            x=summary_data['Date'],
+            y=summary_data['Product Id'],
+            mode='lines+markers',
+            name='Product Count',
+            line=dict(color='#C73E1D', width=2),
+            marker=dict(size=6)
+        ),
+        row=2, col=2
+    )
+    
+    # Update layout
+    fig.update_layout(
+        title=f"Summary Analytics - {selected_shape} | {selected_color} | {selected_bucket}",
+        height=500,
+        showlegend=False,
+        plot_bgcolor='white',
+        paper_bgcolor='white'
+    )
+    
+    # Update all x-axes
+    for i in range(1, 3):
+        for j in range(1, 3):
+            fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgray', row=i, col=j)
+            fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray', row=i, col=j)
+    
+    return fig
+
 def main():
     st.set_page_config(page_title="Yellow Diamond Dashboard", layout="wide")
     st.title("Yellow Diamond Dashboard")
@@ -583,6 +855,32 @@ def main():
                     st.metric("MOM QoQ Percent Change", f"0")
                     
                 st.subheader("No Data Present for This Filter")
+            # Add visualization section
+            st.subheader("📈 Trend Analysis")
+            
+            # Create tabs for different visualizations
+            tab1, tab2 = st.tabs(["📊 Variance Trends", "📈 Summary Analytics"])
+            with tab1:
+                if selected_variance_column != "None":
+                    trend_fig = create_trend_visualization(
+                        st.session_state.master_df, 
+                        selected_shape, 
+                        selected_color, 
+                        selected_bucket, 
+                        selected_variance_column
+                    )
+                    st.plotly_chart(trend_fig, use_container_width=True)
+                else:
+                    st.info("Please select a variance column to view trend analysis.")
+            
+            with tab2:
+                summary_fig = create_summary_charts(
+                    st.session_state.master_df, 
+                    selected_shape, 
+                    selected_color, 
+                    selected_bucket
+                )
+                st.plotly_chart(summary_fig, use_container_width=True)
             st.subheader("📊 Data Table")
             st.dataframe(
                 filter_data,
