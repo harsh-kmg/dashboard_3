@@ -386,7 +386,7 @@ def get_summary_metrics(filter_data,FILTER_SHAPE,FILTER_COLOR,FILTER_BUCKET,FILT
                                         (master_df['Color Key'] == FILTER_COLOR) &\
                                         (master_df['Buckets'] == FILTER_BUCKET)]
     try:
-        if FILTER_MONTHLY_VAR_COL == 'Current Average Price'
+        if FILTER_MONTHLY_VAR_COL == 'Current Average Price':
         FILTER_MONTHLY_VAR_COL='Buying Price Avg'
         avg_value = _filter_[FILTER_MONTHLY_VAR_COL].mean()
         MOM_Variance = (sum((filter_data[FILTER_MONTHLY_VAR_COL] - avg_value)/ avg_value )/filter_data.shape[0]) * 100
