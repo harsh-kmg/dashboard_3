@@ -664,11 +664,14 @@ def create_summary_charts(master_df, selected_shape, selected_color, selected_bu
     """
     
     # Filter data
-    filtered_df = master_df[
-        (master_df['Shape key'] == selected_shape) & 
-        (master_df['Color Key'] == selected_color) & 
-        (master_df['Buckets'] == selected_bucket)
-    ]
+    if (selected_shape!=None and selected_color!=None and selected_bucket!=None) or (selected_shape!="None" and selected_color!="None" and selected_bucket!="None"):
+        filtered_df = master_df[
+            (master_df['Shape key'] == selected_shape) & 
+            (master_df['Color Key'] == selected_color) & 
+            (master_df['Buckets'] == selected_bucket)
+        ]
+    else:
+        filtered_df = master_df
     
     if filtered_df.empty:
         fig = go.Figure()
