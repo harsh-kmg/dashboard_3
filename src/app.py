@@ -988,7 +988,7 @@ def main():
                 selected_color, 
                 selected_bucket
             )
-            st.plotly_chart(summary_fig, use_container_width=True)
+            # st.plotly_chart(summary_fig, use_container_width=True)
     else:
         st.info("No data in master database. Upload an Excel file to get started!")
     # Reset button
