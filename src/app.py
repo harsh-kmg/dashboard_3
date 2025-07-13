@@ -890,32 +890,7 @@ def main():
             file_name=f"processed_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
             mime="text/csv"
             )
-        # Add visualization section
-        st.subheader("📈 Trend Analysis")
         
-        # Create tabs for different visualizations
-        tab1, tab2 = st.tabs(["📊 Variance Trends", "📈 Summary Analytics"])
-        with tab1:
-            if selected_variance_column != "None":
-                trend_fig = create_trend_visualization(
-                    st.session_state.master_df, 
-                    selected_shape, 
-                    selected_color, 
-                    selected_bucket, 
-                    selected_variance_column
-                )
-                st.plotly_chart(trend_fig, use_container_width=True)
-            else:
-                st.info("Please select a variance column to view trend analysis.")
-        
-        with tab2:
-            summary_fig = create_summary_charts(
-                st.session_state.master_df, 
-                selected_shape, 
-                selected_color, 
-                selected_bucket
-            )
-            st.plotly_chart(summary_fig, use_container_width=True)
         # GAP Summary Table - Show for all combinations
         st.subheader("📋 GAP Summary")
         gap_summary_df = get_gap_summary_table(
@@ -988,6 +963,32 @@ def main():
             
         if not ((selected_month != "None") & (selected_year != "None") & (selected_shape != "None") & (selected_color != "None") & (selected_bucket != "None")):
             st.info("Please select all filter values except 'Select Variance Column' to view detailed metrics.")
+        # Add visualization section
+        st.subheader("📈 Trend Analysis")
+        
+        # Create tabs for different visualizations
+        tab1, tab2 = st.tabs(["📊 Variance Trends", "📈 Summary Analytics"])
+        with tab1:
+            if selected_variance_column != "None":
+                trend_fig = create_trend_visualization(
+                    st.session_state.master_df, 
+                    selected_shape, 
+                    selected_color, 
+                    selected_bucket, 
+                    selected_variance_column
+                )
+                st.plotly_chart(trend_fig, use_container_width=True)
+            else:
+                st.info("Please select a variance column to view trend analysis.")
+        
+        with tab2:
+            summary_fig = create_summary_charts(
+                st.session_state.master_df, 
+                selected_shape, 
+                selected_color, 
+                selected_bucket
+            )
+            st.plotly_chart(summary_fig, use_container_width=True)
     else:
         st.info("No data in master database. Upload an Excel file to get started!")
     # Reset button
