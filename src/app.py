@@ -386,6 +386,19 @@ def get_summary_metrics(filter_data,FILTER_SHAPE,FILTER_COLOR,FILTER_BUCKET,FILT
                                         (master_df['Color Key'] == FILTER_COLOR) &\
                                         (master_df['Buckets'] == FILTER_BUCKET)]
     try:
+        if FILTER_MONTHLY_VAR_COL == 'Current Average Price'
+        FILTER_MONTHLY_VAR_COL='Buying Price Avg'
+        avg_value = _filter_[FILTER_MONTHLY_VAR_COL].mean()
+        MOM_Variance = (sum((filter_data[FILTER_MONTHLY_VAR_COL] - avg_value)/ avg_value )/filter_data.shape[0]) * 100
+        var_analysis = monthly_variance(_filter_,FILTER_MONTHLY_VAR_COL)
+        MOM_Percent_Change = var_analysis[(var_analysis['Month'] == FILTER_MONTH) & (var_analysis['Year'] == FILTE_YEAR)]['Monthly_change'].values.tolist()[0]
+        MOM_QoQ_Percent_Change = var_analysis[(var_analysis['Month'] == FILTER_MONTH) & (var_analysis['Year'] == FILTE_YEAR)]['qaurter_change'].values.tolist()[0]
+        if MOM_Percent_Change == np.inf:
+            MOM_Percent_Change = 0
+        if MOM_QoQ_Percent_Change == np.inf:
+            MOM_QoQ_Percent_Change = 0
+        return [int(MOM_Variance), MOM_Percent_Change, MOM_QoQ_Percent_Change]
+    else:
         avg_value = _filter_[FILTER_MONTHLY_VAR_COL].mean()
         MOM_Variance = (sum((filter_data[FILTER_MONTHLY_VAR_COL] - avg_value)/ avg_value )/filter_data.shape[0]) * 100
         var_analysis = monthly_variance(_filter_,FILTER_MONTHLY_VAR_COL)
@@ -523,7 +536,7 @@ def main():
             buckets = ["None"]+list(stock_bucket.keys())
             selected_bucket = st.selectbox("Filter by Bucket", buckets)
         with Variance_Column:
-            variance_columns = ["None"]+['Buying Price Avg','Max Buying Price']
+            variance_columns = ["None"]+['Current Average Price','Max Buying Price']
             selected_variance_column = st.selectbox("Select Variance Column", variance_columns)
         # Apply filters
         filtered_df = st.session_state.master_df.copy()
