@@ -440,11 +440,11 @@ def get_gap_summary_table(master_df, selected_month, selected_year, selected_sha
                                 'Shape': shape,
                                 'Color': color,
                                 'Bucket': bucket,
-                                # 'Max Qty': max_qty,
-                                # 'Min Qty': min_qty,
-                                # 'Stock in Hand': stock_in_hand,
+                                'Max Qty': max_qty,
+                                'Min Qty': min_qty,
+                                'Stock in Hand': stock_in_hand,
                                 'GAP Value': gap_value,
-                                # 'Status': 'Excess' if gap_value > 0 else 'Need' if gap_value < 0 else 'Adequate'
+                                'Status': 'Excess' if gap_value > 0 else 'Need' if gap_value < 0 else 'Adequate'
                             })
     
     return pd.DataFrame(gap_summary).sort_values(by=['Shape','Color','Bucket'])
@@ -640,10 +640,37 @@ def main():
             
             # Download GAP Summary
             st.subheader("💾 Download GAP Summary")
-            gap_csv = gap_summary_df.to_csv(index=False)
+            gap_summary.append({
+                                'Month': month,
+                                'Year': year,
+                                'Shape': shape,
+                                'Color': color,
+                                'Bucket': bucket,
+                                'Max Qty': max_qty,
+                                'Min Qty': min_qty,
+                                'Stock in Hand': stock_in_hand,
+                                'GAP Value': gap_value,
+                                'Status': 'Excess' if gap_value > 0 else 'Need' if gap_value < 0 else 'Adequate'
+                            })
+            gap_summary_df_cols = ['Month','Year','Shape','Color','Bucket','GAP Value']
+            gap_csv = gap_summary_df.loc[:,gap_summary_df_cols].to_csv(index=False)
+            gap_csv_excess = gap_summary_df[gap_summary_df['Status']=='Excess'].loc[:,gap_summary_df_cols].to_csv(index=False)
+            gap_csv_need = gap_summary_df[gap_summary_df['Status']=='Need'].loc[:,gap_summary_df_cols].to_csv(index=False)
             st.download_button(
                 label="Download GAP Summary as CSV",
                 data=gap_csv,
+                file_name=f"gap_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                mime="text/csv"
+            )
+            st.download_button(
+                label="Download GAP Excess Summary as CSV",
+                data=gap_csv_excess,
+                file_name=f"gap_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                mime="text/csv"
+            )
+            st.download_button(
+                label="Download GAP Need Summary as CSV",
+                data=gap_csv_need,
                 file_name=f"gap_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                 mime="text/csv"
             )
