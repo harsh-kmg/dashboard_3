@@ -685,6 +685,7 @@ def create_summary_charts(master_df, selected_shape, selected_color, selected_bu
         'Product Id': 'count'
     }).reset_index()
     
+    
     # Create date column for proper sorting
     summary_data['Num_Month'] = summary_data['Month'].map(month_map)
     summary_data['Date']='01'+'-'+summary_data['Num_Month'].astype(str)+'-'+summary_data['Year'].astype(str)
