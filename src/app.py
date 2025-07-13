@@ -498,7 +498,7 @@ def sort_months(months):
     sorted_months = sorted(months, key=lambda month: month_mapping.get(month, 13))
     
     return sorted_months
-def create_trend_visualization(master_df, selected_shape, selected_color, selected_bucket, selected_variance_column):
+def create_trend_visualization(master_df, selected_shape=None, selected_color=None, selected_bucket=None, selected_variance_column=None):
     """
     Create trend line visualizations for MOM Variance and MOM QoQ Percent Change
     
